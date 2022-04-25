@@ -1,0 +1,25 @@
+{
+    "name": "piasiu/saq",
+    "type": "library",
+    "description": "Simple, accessible and quickly PHP framework",
+    "keywords": ["piasiu","saq","framework","routing"],
+    "homepage": "https://github.com/Piasiu/saq",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Paweł Piaskowy",
+            "email": "pawel@piaskowy.net",
+            "homepage": "http://piaskowy.net"
+        }
+    ],
+    "require": {
+        "php": ">=8.0.0",
+        "ext-json": "*",
+        "piasiu/saq-common": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "Saq\\": "src"
+        }
+    }
+}
