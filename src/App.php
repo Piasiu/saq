@@ -17,6 +17,8 @@ use Saq\Interfaces\Handlers\HttpHandlerInterface;
 use Saq\Interfaces\Handlers\NotFoundHandlerInterface;
 use Saq\Interfaces\Http\RequestInterface;
 use Saq\Interfaces\Http\ResponseInterface;
+use Saq\Interfaces\Routing\RouterInterface;
+use Saq\Routing\Router;
 use Throwable;
 
 class App
@@ -25,6 +27,11 @@ class App
      * @var ContainerInterface
      */
     private ContainerInterface $container;
+
+    /**
+     * @var RouterInterface
+     */
+    private RouterInterface $router;
 
     /**
      * @var ErrorHandlerInterface|null
@@ -37,12 +44,13 @@ class App
     private array $httpHandlers = [];
 
     /**
-     * @param ContainerInterface|array $container
+     * @param array $container
      */
     #[Pure]
-    public function __construct(ContainerInterface|array $container = [])
+    public function __construct(array $container = [])
     {
-        $this->container = is_array($container) ? new Container($container) : $container;
+        $this->container = new Container($container);
+        $this->registerRouter();
     }
 
     /**
@@ -102,8 +110,7 @@ class App
      */
     private function handle(RequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $router = $this->container->getRouter();
-        $action = $router->handle($request->getMethod(), $request->getUri());
+        $action = $this->router->handle($request->getMethod(), $request->getUri());
 
         if (!$action->exists())
         {
@@ -174,5 +181,14 @@ class App
         }
 
         return $this->httpHandlers[$httpStatusCode];
+    }
+
+    private function registerRouter(): void
+    {
+        $callableResolver = $this->container->getCallableResolver();
+        $settings = $this->container->getSettings();
+        $this->router = new Router($callableResolver, $settings->get('router', []));
+        $this->router->setBasePath($settings->get('basePath', ''));
+        $this->container['router'] = $this->router;
     }
 }
