@@ -8,6 +8,7 @@ use Saq\Exceptions\Container\ContainerException;
 use Saq\Exceptions\Container\ServiceNotFoundException;
 use Saq\Interfaces\CollectionInterface;
 use Saq\Interfaces\ContainerInterface;
+use Saq\Interfaces\Routing\CallableResolverInterface;
 use Saq\Interfaces\Routing\RouterInterface;
 use Saq\Interfaces\ServiceInterface;
 use Saq\Routing\Router;
@@ -28,11 +29,6 @@ class Container implements ContainerInterface
      * @var CallableResolver
      */
     private CallableResolver $callableResolver;
-
-    /**
-     * @var RouterInterface|null
-     */
-    private ?RouterInterface $router = null;
 
     /**
      * Container constructor.
@@ -90,36 +86,19 @@ class Container implements ContainerInterface
     }
 
     /**
+     * @return CallableResolverInterface
+     */
+    public function getCallableResolver(): CallableResolverInterface
+    {
+        return $this->callableResolver;
+    }
+
+    /**
      * @inheritDoc
      */
     public function getSettings(): CollectionInterface
     {
         return $this->settings;
-    }
-
-    /**
-     * @param RouterInterface $router
-     * @return Container
-     */
-    public function setRouter(RouterInterface $router): Container
-    {
-        $this->router = $router;
-        $this->router->setBasePath($this->settings->get('basePath', ''));
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getRouter(): RouterInterface
-    {
-        if ($this->router === null)
-        {
-            $router = new Router($this->callableResolver, $this->settings->get('router', []));
-            $this->setRouter($router);
-        }
-
-        return $this->router;
     }
 
     /**
