@@ -72,7 +72,6 @@ class Router implements RouterInterface, RouteCollectionInterface
      */
     public function addRoute(Route $route): void
     {
-
         $this->routes[$route->getName()] = $route;
         $this->dispatcher->addRoute($route);
     }
@@ -89,7 +88,7 @@ class Router implements RouterInterface, RouteCollectionInterface
         if ($route !== null)
         {
             $callable = $this->callableResolver->resolve($route->getRawCallable());
-            $action->set($route->getName(), $callable, $arguments);
+            $action->set($route, $callable, $arguments);
         }
 
         return $action;

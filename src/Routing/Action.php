@@ -2,13 +2,14 @@
 namespace Saq\Routing;
 
 use Saq\Interfaces\Routing\ActionInterface;
+use Saq\Interfaces\Routing\RouteInterface;
 
 class Action implements ActionInterface
 {
     /**
-     * @var string|null
+     * @var RouteInterface|null
      */
-    private ?string $routeName = null;
+    private ?RouteInterface $route = null;
 
     /**
      * @var callable|null
@@ -21,13 +22,13 @@ class Action implements ActionInterface
     private array $arguments = [];
 
     /**
-     * @param string $routeName
+     * @param RouteInterface $route
      * @param callable $callable
      * @param array $arguments
      */
-    public function set(string $routeName, callable $callable, array $arguments)
+    public function set(RouteInterface $route, callable $callable, array $arguments)
     {
-        $this->routeName = $routeName;
+        $this->route = $route;
         $this->callable = $callable;
         $this->arguments = $arguments;
     }
@@ -35,9 +36,9 @@ class Action implements ActionInterface
     /**
      * @inheritDoc
      */
-    public function getRouteName(): ?string
+    public function getRoute(): ?RouteInterface
     {
-        return $this->routeName;
+        return $this->route;
     }
 
     /**

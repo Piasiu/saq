@@ -4,9 +4,9 @@ namespace Saq\Interfaces\Routing;
 interface ActionInterface
 {
     /**
-     * @return string|null
+     * @return RouteInterface|null
      */
-    function getRouteName(): ?string;
+    function getRoute(): ?RouteInterface;
 
     /**
      * @return callable|null
