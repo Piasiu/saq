@@ -29,11 +29,6 @@ class App
     private ContainerInterface $container;
 
     /**
-     * @var RouterInterface
-     */
-    private RouterInterface $router;
-
-    /**
      * @var ErrorHandlerInterface|null
      */
     private ?ErrorHandlerInterface $errorHandler = null;
@@ -44,13 +39,12 @@ class App
     private array $httpHandlers = [];
 
     /**
-     * @param array $container
+     * @param ContainerInterface|array $container
      */
     #[Pure]
-    public function __construct(array $container = [])
+    public function __construct(ContainerInterface|array $container = [])
     {
-        $this->container = new Container($container);
-        $this->registerRouter();
+        $this->container = is_array($container) ? new Container($container) : $container;
     }
 
     /**
@@ -66,11 +60,12 @@ class App
      */
     public function run(?RequestInterface $request = null): void
     {
-        if ($request === null)
+        if ($request !== null)
         {
-            $request = new Request();
+            $this->container->setRequest($request);
         }
 
+        $request = $this->container->getRequest();
         $response = new Response();
 
         try
@@ -110,7 +105,8 @@ class App
      */
     private function handle(RequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $action = $this->router->handle($request->getMethod(), $request->getUri());
+        $router = $this->container->getRouter();
+        $action = $router->handle($request->getMethod(), $request->getUri());
 
         if (!$action->exists())
         {
@@ -181,14 +177,5 @@ class App
         }
 
         return $this->httpHandlers[$httpStatusCode];
-    }
-
-    private function registerRouter(): void
-    {
-        $callableResolver = $this->container->getCallableResolver();
-        $settings = $this->container->getSettings();
-        $this->router = new Router($callableResolver, $settings->get('router', []));
-        $this->router->setBasePath($settings->get('basePath', ''));
-        $this->container['router'] = $this->router;
     }
 }

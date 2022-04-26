@@ -3,24 +3,54 @@ namespace Saq\Routing;
 
 use Attribute;
 use JetBrains\PhpStorm\Pure;
+use Saq\Interfaces\Routing\RouteArgumentInterface;
 
 #[Attribute(\Attribute::TARGET_METHOD)]
-class Route extends Routable
+class Route
 {
+    /**
+     * @var RouteArgumentResolver
+     */
+    protected RouteArgumentResolver $argumentResolver;
+
+    /**
+     * @var string
+     */
+    private string $name;
+    /**
+     * @var string
+     */
+    private string $path;
+
     /**
      * @var array
      */
     private array $methods;
 
     /**
+     * @var array
+     */
+    protected array $rawArguments;
+
+    /**
+     * @var RouteArgumentInterface[]|null
+     */
+    private ?array $arguments = null;
+
+    /**
+     * @var array
+     */
+    private array $defaults;
+
+    /**
+     * @var string|null
+     */
+    private ?string $pattern = null;
+
+    /**
      * @var array|null
      */
     private ?array $rawCallable = null;
-
-    /**
-     * @var RouteGroup|null
-     */
-    private ?RouteGroup $group = null;
 
     /**
      * @param string $name
@@ -32,9 +62,12 @@ class Route extends Routable
     #[Pure]
     public function __construct(string $name, string $path = '', array $methods = ['GET'], array $arguments = [], array $defaults = [])
     {
-        parent::__construct($path, $arguments, $defaults);
+        $this->argumentResolver = new RouteArgumentResolver();
         $this->name = $name;
+        $this->path = '/'.ltrim(trim($path), '/');
         $this->methods = $methods;
+        $this->rawArguments = $arguments;
+        $this->defaults = $defaults;
     }
 
     /**
@@ -46,11 +79,72 @@ class Route extends Routable
     }
 
     /**
+     * @return string
+     */
+    #[Pure]
+    public function getPath(): string
+    {
+        return $this->path;
+    }
+
+    /**
      * @return string[]
      */
     public function getMethods(): array
     {
         return $this->methods;
+    }
+
+    /**
+     * @return bool
+     */
+    #[Pure]
+    public function hasArguments(): bool
+    {
+        return count($this->rawArguments) > 0;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawArguments(): array
+    {
+        return $this->rawArguments;
+    }
+
+    /**
+     * @return RouteArgumentInterface[]
+     */
+    public function getArguments(): array
+    {
+        if ($this->arguments === null)
+        {
+            $this->arguments = [];
+
+            foreach ($this->rawArguments as $name => $data)
+            {
+                $argument = $this->argumentResolver->resolve($data);
+                $this->arguments[$name] = $argument;
+            }
+        }
+
+        return $this->arguments;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaults(): array
+    {
+        return $this->defaults;
+    }
+
+    /**
+     * @param string $pattern
+     */
+    public function setPattern(string $pattern): void
+    {
+        $this->pattern = $pattern;
     }
 
     /**
@@ -60,8 +154,7 @@ class Route extends Routable
     {
         if ($this->pattern === null)
         {
-            $this->pattern = $this->group !== null ? $this->group->getPattern() : '';
-            $this->pattern .= $this->getPath();
+            $this->pattern = $this->getPath();
             $arguments = $this->getArguments();
 
             foreach ($arguments as $name => $argument)
@@ -93,8 +186,10 @@ class Route extends Routable
     /**
      * @param RouteGroup $group
      */
-    public function setGroup(RouteGroup $group): void
+    public function addGroup(RouteGroup $group): void
     {
-        $this->group = $group;
+        $this->path = $group->getPath().$this->path;
+        $this->rawArguments = array_merge($group->getRawArguments(), $this->rawArguments);
+        $this->defaults = array_merge($group->getDefaults(), $this->defaults);
     }
 }

@@ -6,8 +6,10 @@ use JetBrains\PhpStorm\Pure;
 use ReflectionException;
 use Saq\Exceptions\Container\ContainerException;
 use Saq\Exceptions\Container\ServiceNotFoundException;
+use Saq\Http\Request;
 use Saq\Interfaces\CollectionInterface;
 use Saq\Interfaces\ContainerInterface;
+use Saq\Interfaces\Http\RequestInterface;
 use Saq\Interfaces\Routing\CallableResolverInterface;
 use Saq\Interfaces\Routing\RouterInterface;
 use Saq\Interfaces\ServiceInterface;
@@ -21,14 +23,24 @@ class Container implements ContainerInterface
     private array $services = [];
 
     /**
+     * @var CallableResolver
+     */
+    private CallableResolver $callableResolver;
+
+    /**
      * @var CollectionInterface
      */
     private CollectionInterface $settings;
 
     /**
-     * @var CallableResolver
+     * @var RouterInterface
      */
-    private CallableResolver $callableResolver;
+    private RouterInterface $router;
+
+    /**
+     * @var RequestInterface
+     */
+    private RequestInterface $request;
 
     /**
      * Container constructor.
@@ -39,6 +51,7 @@ class Container implements ContainerInterface
     {
         $this->callableResolver = new CallableResolver($this);
         $this->settings = new Collection($settings);
+        $this->registerDefaultServices();
     }
 
     /**
@@ -86,19 +99,32 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @return CallableResolverInterface
-     */
-    public function getCallableResolver(): CallableResolverInterface
-    {
-        return $this->callableResolver;
-    }
-
-    /**
      * @inheritDoc
      */
     public function getSettings(): CollectionInterface
     {
         return $this->settings;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRouter(): RouterInterface
+    {
+        return $this->router;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRequest(): RequestInterface
+    {
+        return $this->request;
+    }
+
+    public function setRequest(RequestInterface $request): void
+    {
+        $this->request = $request;
     }
 
     /**
@@ -185,5 +211,15 @@ class Container implements ContainerInterface
     public function getIterator(): ArrayIterator
     {
         return new ArrayIterator();
+    }
+
+    private function registerDefaultServices(): void
+    {
+        $settings = $this->getSettings();
+
+        $this->router = new Router($this->callableResolver, $settings->get('router', []));
+        $this->router->setBasePath($settings->get('basePath', ''));
+
+        $this->request = new Request();
     }
 }

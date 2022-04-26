@@ -26,5 +26,5 @@ interface RouterInterface
      * @param array $queryParams
      * @return string
      */
-    function pathFor(string $routeName, array $arguments = [], array $queryParams = []): string;
+    function urlFor(string $routeName, array $arguments = [], array $queryParams = []): string;
 }

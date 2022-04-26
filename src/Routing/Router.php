@@ -2,12 +2,11 @@
 namespace Saq\Routing;
 
 use JetBrains\PhpStorm\NoReturn;
+use ReflectionException;
 use RuntimeException;
-use Saq\Exceptions\Runtime\ClassNotImplementInterfaceException;
 use Saq\Interfaces\Routing\ActionInterface;
 use Saq\Interfaces\Routing\CallableResolverInterface;
 use Saq\Interfaces\Routing\RouteCollectionInterface;
-use Saq\Interfaces\Routing\RouteCollectorInterface;
 use Saq\Interfaces\Routing\RouterInterface;
 
 class Router implements RouterInterface, RouteCollectionInterface
@@ -18,9 +17,9 @@ class Router implements RouterInterface, RouteCollectionInterface
     private Dispatcher $dispatcher;
 
     /**
-     * @var RouteCollectorInterface
+     * @var RouteCollector
      */
-    private RouteCollectorInterface $routeCollector;
+    private RouteCollector $routeCollector;
 
     /**
      * @var CallableResolverInterface
@@ -40,12 +39,14 @@ class Router implements RouterInterface, RouteCollectionInterface
     /**
      * @param CallableResolverInterface $callableResolver
      * @param array $options
+     * @throws ReflectionException
      */
     #[NoReturn]
     public function __construct(CallableResolverInterface $callableResolver, array $options = [])
     {
         $this->callableResolver = $callableResolver;
         $this->dispatcher = new Dispatcher();
+        $this->routeCollector = new RouteCollector();
         $this->setOptions($options);
         $this->routeCollector->collect($this);
     }
@@ -71,6 +72,7 @@ class Router implements RouterInterface, RouteCollectionInterface
      */
     public function addRoute(Route $route): void
     {
+
         $this->routes[$route->getName()] = $route;
         $this->dispatcher->addRoute($route);
     }
@@ -96,7 +98,7 @@ class Router implements RouterInterface, RouteCollectionInterface
     /**
      * @inheritDoc
      */
-    public function pathFor(string $routeName, array $arguments = [], array $queryParams = []): string
+    public function urlFor(string $routeName, array $arguments = [], array $queryParams = []): string
     {
         if (!isset($this->routes[$routeName]))
         {
@@ -145,38 +147,22 @@ class Router implements RouterInterface, RouteCollectionInterface
      */
     public function setOptions(array $options): void
     {
-        if (array_key_exists('basePath', $options))
+        if (isset($options['basePath']))
         {
             $this->basePath = $options['basePath'];
         }
 
-        if (array_key_exists('routeCollector', $options))
-        {
-            $routeCollector = $options['routeCollector'];
-
-            if (!($routeCollector instanceof RouteCollectorInterface))
-            {
-                throw new ClassNotImplementInterfaceException(get_class($routeCollector), RouteCollectorInterface::class);
-            }
-
-            $this->routeCollector = $routeCollector;
-        }
-        else
-        {
-            $this->routeCollector = new RouteCollector();
-        }
-
-        if (array_key_exists('controllersPath', $options))
+        if (isset($options['controllersPath']))
         {
             $this->routeCollector->setPath($options['controllersPath']);
         }
 
-        if (array_key_exists('controllerNamePattern', $options))
+        if (isset($options['controllerNamePattern']))
         {
             $this->routeCollector->setPattern($options['controllerNamePattern']);
         }
 
-        if (array_key_exists('cacheFile', $options))
+        if (isset($options['cache']))
         {
             $this->routeCollector->setCacheFile($options['cacheFile']);
         }

@@ -2,19 +2,12 @@
 namespace Saq\Routing;
 
 use JetBrains\PhpStorm\NoReturn;
-use JetBrains\PhpStorm\Pure;
 use ReflectionClass;
 use ReflectionException;
 use Saq\Interfaces\Routing\RouteCollectionInterface;
-use Saq\Interfaces\Routing\RouteCollectorInterface;
 
-class RouteCollector implements RouteCollectorInterface
+class RouteCollector
 {
-    /**
-     * @var RouteArgumentResolver
-     */
-    private RouteArgumentResolver $routeArgumentResolver;
-
     /**
      * @var string
      */
@@ -29,12 +22,6 @@ class RouteCollector implements RouteCollectorInterface
      * @var string|null
      */
     private ?string $cacheFile = null;
-
-    #[Pure]
-    public function __construct()
-    {
-        $this->routeArgumentResolver = new RouteArgumentResolver();
-    }
 
     /**
      * @param string $path
@@ -68,7 +55,7 @@ class RouteCollector implements RouteCollectorInterface
     }
 
     /**
-     * @inheritDoc
+     * @param RouteCollectionInterface $routeCollection
      * @throws ReflectionException
      */
     public function collect(RouteCollectionInterface $routeCollection): void
@@ -104,20 +91,11 @@ class RouteCollector implements RouteCollectorInterface
             {
                 /** @var RouteGroup $group */
                 $group = $groups[0]->newInstance();
-                $rawGroup = [
-                    $group->getPath(),
-                    $group->getRawArguments(),
-                    $group->getDefaults(),
-                    $group->getPattern()
-                ];
             }
             else
             {
                 $group = null;
-                $rawGroup = null;
             }
-
-            $index = count($data);
 
             foreach ($methods as $method)
             {
@@ -127,25 +105,16 @@ class RouteCollector implements RouteCollectorInterface
                 {
                     /** @var Route $route */
                     $route = $attributes[0]->newInstance();
-                    $route->setArgumentResolver($this->routeArgumentResolver);
                     $route->setRawCallable([$className, $method->getName()]);
 
                     if ($group !== null)
                     {
-                        $route->setGroup($group);
+                        $route->addGroup($group);
                     }
 
                     $routeCollection->addRoute($route);
 
-                    if (!array_key_exists($index, $data))
-                    {
-                        $data[$index] = [
-                            $rawGroup,
-                            []
-                        ];
-                    }
-
-                    $data[$index][1][] = [
+                    $data[] = [
                         $route->getName(),
                         $route->getPath(),
                         $route->getMethods(),
@@ -174,33 +143,12 @@ class RouteCollector implements RouteCollectorInterface
         $json = file_get_contents($this->cacheFile);
         $data = json_decode($json, true);
 
-        foreach ($data as $rawData)
+        foreach ($data as $item)
         {
-            if ($rawData[0] !== null)
-            {
-                $group = new RouteGroup($rawData[0][0], $rawData[0][1], $rawData[0][2]);
-                $group->setArgumentResolver($this->routeArgumentResolver);
-                $group->setPattern($rawData[0][3]);
-            }
-            else
-            {
-                $group = null;
-            }
-
-            foreach ($rawData[1] as $item)
-            {
-                $route = new Route($item[0], $item[1], $item[2], $item[3], $item[4]);
-                $route->setArgumentResolver($this->routeArgumentResolver);
-                $route->setPattern($item[5]);
-                $route->setRawCallable($item[6]);
-
-                if ($group !== null)
-                {
-                    $route->setGroup($group);
-                }
-
-                $routeCollection->addRoute($route);
-            }
+            $route = new Route($item[0], $item[1], $item[2], $item[3], $item[4]);
+            $route->setPattern($item[5]);
+            $route->setRawCallable($item[6]);
+            $routeCollection->addRoute($route);
         }
     }
 
