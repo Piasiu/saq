@@ -8,9 +8,8 @@ use RuntimeException;
 use Saq\Exceptions\Runtime\ClassNotContainMethodException;
 use Saq\Exceptions\Runtime\ClassNotExistException;
 use Saq\Interfaces\ContainerInterface;
-use Saq\Interfaces\Routing\CallableResolverInterface;
 
-class CallableResolver implements CallableResolverInterface
+class CallableResolver
 {
     /**
      * @var ContainerInterface
@@ -26,10 +25,11 @@ class CallableResolver implements CallableResolverInterface
     }
 
     /**
-     * @inheritDoc
+     * @param callable|array|string $toResolve
+     * @return callable
      * @throws ReflectionException
      */
-    function resolve(callable|array|string $toResolve): callable
+    public function resolve(callable|array|string $toResolve): callable
     {
         if (is_callable($toResolve))
         {
