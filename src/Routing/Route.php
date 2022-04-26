@@ -4,9 +4,10 @@ namespace Saq\Routing;
 use Attribute;
 use JetBrains\PhpStorm\Pure;
 use Saq\Interfaces\Routing\RouteArgumentInterface;
+use Saq\Interfaces\Routing\RouteInterface;
 
 #[Attribute(\Attribute::TARGET_METHOD)]
-class Route
+class Route implements RouteInterface
 {
     /**
      * @var RouteArgumentResolver
@@ -71,7 +72,7 @@ class Route
     }
 
     /**
-     * @return string
+     * @inheritDoc
      */
     public function getName(): string
     {
@@ -79,7 +80,7 @@ class Route
     }
 
     /**
-     * @return string
+     * @inheritDoc
      */
     #[Pure]
     public function getPath(): string
@@ -88,7 +89,7 @@ class Route
     }
 
     /**
-     * @return string[]
+     * @inheritDoc
      */
     public function getMethods(): array
     {
@@ -113,7 +114,7 @@ class Route
     }
 
     /**
-     * @return RouteArgumentInterface[]
+     * @inheritDoc
      */
     public function getArguments(): array
     {
@@ -132,7 +133,7 @@ class Route
     }
 
     /**
-     * @return array
+     * @inheritDoc
      */
     public function getDefaults(): array
     {
@@ -148,7 +149,7 @@ class Route
     }
 
     /**
-     * @return string
+     * @inheritDoc
      */
     public function getPattern(): string
     {
