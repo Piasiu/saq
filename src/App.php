@@ -114,6 +114,7 @@ class App
         }
 
         // TODO Obsługa middelware-ów.
+        $request->setAttribute('action', $action);
         $result = call_user_func_array($action->getCallable(), [$request, $response, $action->getArguments()]);
 
         if ($result instanceof ResponseInterface)
