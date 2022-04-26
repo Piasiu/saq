@@ -10,7 +10,6 @@ use Saq\Http\Request;
 use Saq\Interfaces\CollectionInterface;
 use Saq\Interfaces\ContainerInterface;
 use Saq\Interfaces\Http\RequestInterface;
-use Saq\Interfaces\Routing\CallableResolverInterface;
 use Saq\Interfaces\Routing\RouterInterface;
 use Saq\Interfaces\ServiceInterface;
 use Saq\Routing\Router;

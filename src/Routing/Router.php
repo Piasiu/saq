@@ -164,7 +164,7 @@ class Router implements RouterInterface, RouteCollectionInterface
 
         if (isset($options['cache']))
         {
-            $this->routeCollector->setCacheFile($options['cacheFile']);
+            $this->routeCollector->setCacheFile($options['cache']);
         }
     }
 }
