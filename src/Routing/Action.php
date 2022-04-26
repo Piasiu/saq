@@ -6,6 +6,11 @@ use Saq\Interfaces\Routing\ActionInterface;
 class Action implements ActionInterface
 {
     /**
+     * @var string|null
+     */
+    private ?string $routeName = null;
+
+    /**
      * @var callable|null
      */
     private $callable = null;
@@ -16,13 +21,23 @@ class Action implements ActionInterface
     private array $arguments = [];
 
     /**
+     * @param string $routeName
      * @param callable $callable
      * @param array $arguments
      */
-    public function set(callable $callable, array $arguments)
+    public function set(string $routeName, callable $callable, array $arguments)
     {
+        $this->routeName = $routeName;
         $this->callable = $callable;
         $this->arguments = $arguments;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRouteName(): ?string
+    {
+        return $this->routeName;
     }
 
     /**

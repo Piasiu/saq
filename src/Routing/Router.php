@@ -89,7 +89,7 @@ class Router implements RouterInterface, RouteCollectionInterface
         if ($route !== null)
         {
             $callable = $this->callableResolver->resolve($route->getRawCallable());
-            $action->set($callable, $arguments);
+            $action->set($route->getName(), $callable, $arguments);
         }
 
         return $action;
