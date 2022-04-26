@@ -14,8 +14,7 @@
     ],
     "require": {
         "php": ">=8.0.0",
-        "ext-json": "*",
-        "piasiu/saq-common": "dev-main"
+        "ext-json": "*"
     },
     "autoload": {
         "psr-4": {
