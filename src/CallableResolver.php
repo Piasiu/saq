@@ -8,8 +8,9 @@ use RuntimeException;
 use Saq\Exceptions\Runtime\ClassNotContainMethodException;
 use Saq\Exceptions\Runtime\ClassNotExistException;
 use Saq\Interfaces\ContainerInterface;
+use Saq\Interfaces\Routing\CallableResolverInterface;
 
-class CallableResolver
+class CallableResolver implements CallableResolverInterface
 {
     /**
      * @var ContainerInterface

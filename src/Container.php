@@ -212,6 +212,9 @@ class Container implements ContainerInterface
         return new ArrayIterator();
     }
 
+    /**
+     * @throws ReflectionException
+     */
     private function registerDefaultServices(): void
     {
         $settings = $this->getSettings();

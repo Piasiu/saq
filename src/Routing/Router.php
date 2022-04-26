@@ -12,6 +12,11 @@ use Saq\Interfaces\Routing\RouterInterface;
 class Router implements RouterInterface, RouteCollectionInterface
 {
     /**
+     * @var CallableResolverInterface
+     */
+    private CallableResolverInterface $callableResolver;
+
+    /**
      * @var Dispatcher
      */
     private Dispatcher $dispatcher;
@@ -20,11 +25,6 @@ class Router implements RouterInterface, RouteCollectionInterface
      * @var RouteCollector
      */
     private RouteCollector $routeCollector;
-
-    /**
-     * @var CallableResolverInterface
-     */
-    private CallableResolverInterface $callableResolver;
 
     /**
      * @var string
