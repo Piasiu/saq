@@ -9,29 +9,9 @@ interface RequestInterface
     function getMethod(): string;
 
     /**
-     * @return string
+     * @return UriInterface
      */
-    function getScheme(): string;
-
-    /**
-     * @return string
-     */
-    function getHost(): string;
-
-    /**
-     * @return int
-     */
-    function getPort(): int;
-
-    /**
-     * @return string
-     */
-    function getUri(): string;
-
-    /**
-     * @return array
-     */
-    function getQueryParams(): array;
+    function getUri(): UriInterface;
 
     /**
      * @return RequestBodyInterface
@@ -44,19 +24,16 @@ interface RequestInterface
     function getRemoteIp(): string;
 
     /**
-     * @return string
-     */
-    function getRemotePort(): string;
-
-    /**
+     * @param string|null $default
      * @return string|null
      */
-    function getRemoteHost(): ?string;
+    function getRemoteHost(?string $default = null): ?string;
 
     /**
+     * @param string|null $default
      * @return string|null
      */
-    function getReferer(): ?string;
+    function getReferer(?string $default = null): ?string;
 
     /**
      * @param string $name

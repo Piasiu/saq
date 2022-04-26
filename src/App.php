@@ -106,7 +106,7 @@ class App
     private function handle(RequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $router = $this->container->getRouter();
-        $action = $router->handle($request->getMethod(), $request->getUri());
+        $action = $router->handle($request->getMethod(), $request->getUri()->getPath());
 
         if (!$action->exists())
         {

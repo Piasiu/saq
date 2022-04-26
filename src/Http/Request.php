@@ -4,6 +4,7 @@ namespace Saq\Http;
 use JetBrains\PhpStorm\Pure;
 use Saq\Interfaces\Http\RequestBodyInterface;
 use Saq\Interfaces\Http\RequestInterface;
+use Saq\Interfaces\Http\UriInterface;
 
 class Request implements RequestInterface
 {
@@ -13,29 +14,9 @@ class Request implements RequestInterface
     private string $method;
 
     /**
-     * @var string
+     * @var UriInterface
      */
-    private string $scheme;
-
-    /**
-     * @var string
-     */
-    private string $host;
-
-    /**
-     * @var int
-     */
-    private int $port;
-
-    /**
-     * @var string
-     */
-    private string $uri;
-
-    /**
-     * @var array
-     */
-    private array $queryParams;
+    private UriInterface $uri;
 
     /**
      * @var array
@@ -53,11 +34,6 @@ class Request implements RequestInterface
     private string $remoteIp;
 
     /**
-     * @var string
-     */
-    private string $remotePort;
-
-    /**
      * @var string|null
      */
     private ?string $remoteHost = null;
@@ -67,18 +43,12 @@ class Request implements RequestInterface
      */
     private ?string $referer = null;
 
-    #[Pure]
     public function __construct()
     {
         $this->method = $_SERVER['REQUEST_METHOD'];
-        $this->scheme = $_SERVER['REQUEST_SCHEME'];
-        $this->host = $_SERVER['SERVER_NAME'];
-        $this->port = $_SERVER['SERVER_PORT'];
-        $this->uri = $_SERVER['REQUEST_URI'];
-        $this->queryParams = $_REQUEST;
+        $this->setUri();
         $this->body = new RequestBody();
         $this->remoteIp = $_SERVER['REMOTE_ADDR'];
-        $this->remotePort = $_SERVER['REMOTE_PORT'];
 
         if (array_key_exists('REMOTE_HOST', $_SERVER))
         {
@@ -102,41 +72,9 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public function getScheme(): string
-    {
-        return $this->scheme;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getHost(): string
-    {
-        return $this->host;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getPort(): int
-    {
-        return $this->port;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getUri(): string
+    public function getUri(): UriInterface
     {
         return $this->uri;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getQueryParams(): array
-    {
-        return $this->queryParams;
     }
 
     /**
@@ -158,25 +96,17 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public function getRemotePort(): string
+    public function getRemoteHost(?string $default = null): ?string
     {
-        return $this->remotePort;
+        return $this->remoteHost !== null ? $this->remoteHost : $default;
     }
 
     /**
      * @inheritDoc
      */
-    public function getRemoteHost(): ?string
+    public function getReferer(?string $default = null): ?string
     {
-        return $this->remoteHost;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getReferer(): ?string
-    {
-        return $this->referer;
+        return $this->referer !== null ? $this->referer : $default;
     }
 
     /**
@@ -211,5 +141,16 @@ class Request implements RequestInterface
     public function getAttributes(): array
     {
         return $this->attributes;
+    }
+
+    private function setUri(): void
+    {
+        [$path] = explode('?', $_SERVER['REQUEST_URI']);
+        $this->uri = new Uri($_SERVER['SERVER_NAME']);
+        $this->uri
+            ->setScheme($_SERVER['REQUEST_SCHEME'])
+            ->setPort($_SERVER['SERVER_PORT'])
+            ->setPath($path)
+            ->setQueryParams($_GET);
     }
 }
