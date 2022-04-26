@@ -57,4 +57,28 @@ interface RequestInterface
      * @return string|null
      */
     function getReferer(): ?string;
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    function setAttribute(string $name, mixed $value): void;
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    function hasAttribute(string $name): bool;
+
+    /**
+     * @param string $name
+     * @param mixed|null $default
+     * @return mixed
+     */
+    function getAttribute(string $name, mixed $default = null): mixed;
+
+    /**
+     * @return array
+     */
+    function getAttributes(): array;
 }

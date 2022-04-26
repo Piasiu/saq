@@ -38,6 +38,11 @@ class Request implements RequestInterface
     private array $queryParams;
 
     /**
+     * @var array
+     */
+    private array $attributes;
+
+    /**
      * @var RequestBodyInterface
      */
     private RequestBodyInterface $body;
@@ -172,5 +177,39 @@ class Request implements RequestInterface
     public function getReferer(): ?string
     {
         return $this->referer;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setAttribute(string $name, mixed $value): void
+    {
+        $this->attributes[$name] = $value;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Pure]
+    public function hasAttribute(string $name): bool
+    {
+        return array_key_exists($name, $this->attributes);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Pure]
+    public function getAttribute(string $name, mixed $default = null): mixed
+    {
+        return $this->hasAttribute($name) ? $this->attributes[$name] : $default;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAttributes(): array
+    {
+        return $this->attributes;
     }
 }
