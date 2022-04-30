@@ -2,6 +2,7 @@
 namespace Saq\Routing;
 
 use Attribute;
+use JetBrains\PhpStorm\Pure;
 
 #[Attribute(Attribute::TARGET_METHOD)]
 class Route
@@ -129,6 +130,37 @@ class Route
     public function getCallable(): ?callable
     {
         return $this->callable;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllArguments(): array
+    {
+        $arguments = [];
+
+        foreach ($this->segments as $segment)
+        {
+            $arguments = array_merge($arguments, $segment->getArguments());
+        }
+
+        return $arguments;
+    }
+
+    /**
+     * @return array
+     */
+    #[Pure]
+    public function getAllDefaults(): array
+    {
+        $defaults = [];
+
+        foreach ($this->segments as $segment)
+        {
+            $defaults = array_merge($defaults, $segment->getDefaults());
+        }
+
+        return $defaults;
     }
 
     /**

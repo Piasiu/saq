@@ -6,7 +6,7 @@ class Dispatcher
     /**
      * @var Route[][]
      */
-    private array $routes = [];
+    private array $staticRoutes = [];
 
     /**
      * @var RouteSegment[][]
@@ -35,7 +35,7 @@ class Dispatcher
                 foreach ($route->getMethods() as $method)
                 {
                     // TODO jeśli pattern istnieje to wywalić wyjątek
-                    $this->routes[$method][$segment->getFullPattern()] = $route;
+                    $this->staticRoutes[$method][$segment->getFullPattern()] = $route;
                 }
             }
         }
@@ -48,9 +48,9 @@ class Dispatcher
      */
     public function handle(string $method, string $uri): ?Route
     {
-        if (isset($this->routes[$method][$uri]))
+        if (isset($this->staticRoutes[$method][$uri]))
         {
-            return $this->routes[$method][$uri];
+            return $this->staticRoutes[$method][$uri];
         }
 
         return $this->getMatchedRoute($method, $uri);
@@ -67,14 +67,19 @@ class Dispatcher
         {
             if (preg_match($pattern, $uri, $matches))
             {
-                $arguments = $segment->getAllDefaults();
+                $route = $segment->getRoute();
+                $arguments = $route->getAllDefaults();
 
                 foreach ($segment->getAllArguments() as $name => $argument)
                 {
-                    $arguments[$name] = $argument->filter($matches[$name]);
+                    $arguments[$name] = $matches[$name];
                 }
 
-                $route = $segment->getRoute();
+                foreach ($route->getAllArguments() as $name => $argument)
+                {
+                    $arguments[$name] = $argument->filter($arguments[$name]);
+                }
+
                 $route->setArguments($arguments);
                 return $route;
             }

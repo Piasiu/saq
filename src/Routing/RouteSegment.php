@@ -178,15 +178,6 @@ class RouteSegment
     }
 
     /**
-     * @return array
-     */
-    public function getAllDefaults(): array
-    {
-        $defaults = $this->parent !== null ? $this->parent->getAllDefaults() : [];
-        return array_merge($defaults, $this->defaults);
-    }
-
-    /**
      * @param string $pattern
      */
     public function setPattern(string $pattern): void
