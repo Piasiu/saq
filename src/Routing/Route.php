@@ -2,12 +2,9 @@
 namespace Saq\Routing;
 
 use Attribute;
-use JetBrains\PhpStorm\Pure;
-use Saq\Interfaces\Routing\RouteArgumentInterface;
-use Saq\Interfaces\Routing\RouteInterface;
 
-#[Attribute(\Attribute::TARGET_METHOD)]
-class Route implements RouteInterface
+#[Attribute(Attribute::TARGET_METHOD)]
+class Route
 {
     /**
      * @var RouteArgumentResolver
@@ -18,10 +15,6 @@ class Route implements RouteInterface
      * @var string
      */
     private string $name;
-    /**
-     * @var string
-     */
-    private string $path;
 
     /**
      * @var array
@@ -29,24 +22,14 @@ class Route implements RouteInterface
     private array $methods;
 
     /**
-     * @var array
+     * @var RouteSegment
      */
-    protected array $rawArguments;
+    private RouteSegment $lastSegment;
 
     /**
-     * @var RouteArgumentInterface[]|null
+     * @var RouteSegment[]
      */
-    private ?array $arguments = null;
-
-    /**
-     * @var array
-     */
-    private array $defaults;
-
-    /**
-     * @var string|null
-     */
-    private ?string $pattern = null;
+    private array $segments = [];
 
     /**
      * @var array|null
@@ -54,25 +37,34 @@ class Route implements RouteInterface
     private ?array $rawCallable = null;
 
     /**
+     * @var callable|null
+     */
+    private $callable = null;
+
+    /**
+     * @var array
+     */
+    private array $arguments = [];
+
+    /**
      * @param string $name
-     * @param string $path
+     * @param string|RouteSegment $path
      * @param array|string[] $methods
      * @param array $arguments
-     * @param array $defaults
      */
-    #[Pure]
-    public function __construct(string $name, string $path = '', array $methods = ['GET'], array $arguments = [], array $defaults = [])
+    public function __construct(string $name, string|RouteSegment $path = '', array $methods = ['GET'], array $arguments = [])
     {
         $this->argumentResolver = new RouteArgumentResolver();
         $this->name = $name;
-        $this->path = '/'.ltrim(trim($path), '/');
         $this->methods = $methods;
-        $this->rawArguments = $arguments;
-        $this->defaults = $defaults;
+        $this->lastSegment = $path instanceof RouteSegment ? $path : new RouteSegment($path, $arguments);
+        $this->lastSegment->setArgumentResolver($this->argumentResolver);
+        $this->lastSegment->setRoute($this);
+        $this->segments[] = $this->lastSegment;
     }
 
     /**
-     * @inheritDoc
+     * @return string
      */
     public function getName(): string
     {
@@ -80,16 +72,7 @@ class Route implements RouteInterface
     }
 
     /**
-     * @inheritDoc
-     */
-    #[Pure]
-    public function getPath(): string
-    {
-        return $this->path;
-    }
-
-    /**
-     * @inheritDoc
+     * @return string[]
      */
     public function getMethods(): array
     {
@@ -97,75 +80,23 @@ class Route implements RouteInterface
     }
 
     /**
-     * @return bool
+     * @param RouteSegment $segment
      */
-    #[Pure]
-    public function hasArguments(): bool
+    public function addSegment(RouteSegment $segment): void
     {
-        return count($this->rawArguments) > 0;
+        $segment->setArgumentResolver($this->argumentResolver);
+        $segment->setRoute($this);
+        $segment->setParent($this->lastSegment);
+        $this->lastSegment = $segment;
+        $this->segments[] = $segment;
     }
 
     /**
-     * @return array
+     * @return RouteSegment[]
      */
-    public function getRawArguments(): array
+    public function getSegments(): array
     {
-        return $this->rawArguments;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getArguments(): array
-    {
-        if ($this->arguments === null)
-        {
-            $this->arguments = [];
-
-            foreach ($this->rawArguments as $name => $data)
-            {
-                $argument = $this->argumentResolver->resolve($data);
-                $this->arguments[$name] = $argument;
-            }
-        }
-
-        return $this->arguments;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getDefaults(): array
-    {
-        return $this->defaults;
-    }
-
-    /**
-     * @param string $pattern
-     */
-    public function setPattern(string $pattern): void
-    {
-        $this->pattern = $pattern;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getPattern(): string
-    {
-        if ($this->pattern === null)
-        {
-            $this->pattern = $this->getPath();
-            $arguments = $this->getArguments();
-
-            foreach ($arguments as $name => $argument)
-            {
-                $pattern = "(?<{$name}>{$argument->getPattern()})";
-                $this->pattern = str_replace('{'.$name.'}', $pattern, $this->pattern);
-            }
-        }
-
-        return $this->pattern;
+        return $this->segments;
     }
 
     /**
@@ -185,12 +116,44 @@ class Route implements RouteInterface
     }
 
     /**
-     * @param RouteGroup $group
+     * @param callable $callable
      */
-    public function addGroup(RouteGroup $group): void
+    public function setCallable(callable $callable): void
     {
-        $this->path = $group->getPath().$this->path;
-        $this->rawArguments = array_merge($group->getRawArguments(), $this->rawArguments);
-        $this->defaults = array_merge($group->getDefaults(), $this->defaults);
+        $this->callable = $callable;
+    }
+
+    /**
+     * @return callable|null
+     */
+    public function getCallable(): ?callable
+    {
+        return $this->callable;
+    }
+
+    /**
+     * @param RoutePrefix $prefix
+     */
+    public function addPrefix(RoutePrefix $prefix): void
+    {
+        $segment = $this->segments[0];
+        $segment->setPath($prefix->getPath().$segment->getPath());
+        $segment->setRawArguments(array_merge($prefix->getRawArguments(), $segment->getRawArguments()));
+    }
+
+    /**
+     * @param array $arguments
+     */
+    public function setArguments(array $arguments): void
+    {
+        $this->arguments = $arguments;
+    }
+
+    /**
+     * @return array
+     */
+    public function getArguments(): array
+    {
+        return $this->arguments;
     }
 }

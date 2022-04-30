@@ -105,17 +105,16 @@ class App
      */
     private function handle(RequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $router = $this->container->getRouter();
-        $action = $router->handle($request->getMethod(), $request->getUri()->getPath());
+        $route = $this->container->getRouter()->handle($request);
 
-        if (!$action->exists())
+        if ($route === null)
         {
             throw new NotFoundException();
         }
 
         // TODO Obsługa middelware-ów.
-        $request->setAttribute('action', $action);
-        $result = call_user_func_array($action->getCallable(), [$request, $response, $action->getArguments()]);
+        $request->setAttribute('route', $route);
+        $result = call_user_func_array($route->getCallable(), [$request, $response, $route->getArguments()]);
 
         if ($result instanceof ResponseInterface)
         {

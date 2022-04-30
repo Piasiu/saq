@@ -10,4 +10,10 @@ interface RouteCollectionInterface
      * @return void
      */
     function addRoute(Route $route): void;
+
+    /**
+     * @param string $routeName
+     * @return Route
+     */
+    function getRouteByName(string $routeName): Route;
 }

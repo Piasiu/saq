@@ -34,7 +34,7 @@ interface RouteInterface
     function getPattern(): string;
 
     /**
-     * @return array|null [$className, $methodName]
+     * @return callable|null
      */
-    function getRawCallable(): ?array;
+    function getCallable(): ?callable;
 }

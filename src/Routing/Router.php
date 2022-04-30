@@ -4,7 +4,7 @@ namespace Saq\Routing;
 use JetBrains\PhpStorm\NoReturn;
 use ReflectionException;
 use RuntimeException;
-use Saq\Interfaces\Routing\ActionInterface;
+use Saq\Interfaces\Http\RequestInterface;
 use Saq\Interfaces\Routing\CallableResolverInterface;
 use Saq\Interfaces\Routing\RouteCollectionInterface;
 use Saq\Interfaces\Routing\RouterInterface;
@@ -15,6 +15,11 @@ class Router implements RouterInterface, RouteCollectionInterface
      * @var CallableResolverInterface
      */
     private CallableResolverInterface $callableResolver;
+
+    /**
+     * @var RouteParser
+     */
+    private RouteParser $routeParser;
 
     /**
      * @var Dispatcher
@@ -45,6 +50,7 @@ class Router implements RouterInterface, RouteCollectionInterface
     public function __construct(CallableResolverInterface $callableResolver, array $options = [])
     {
         $this->callableResolver = $callableResolver;
+        $this->routeParser = new RouteParser();
         $this->dispatcher = new Dispatcher();
         $this->routeCollector = new RouteCollector();
         $this->setOptions($options);
@@ -79,19 +85,33 @@ class Router implements RouterInterface, RouteCollectionInterface
     /**
      * @inheritDoc
      */
-    public function handle(string $method, string $uri): ActionInterface
+    public function getRouteByName(string $routeName): Route
     {
-        $action = new Action();
-        list($route, $arguments) = $this->dispatcher->handle($method, $uri);
+        if (!isset($this->routes[$routeName]))
+        {
+            throw new RuntimeException("Route \"{$routeName}\" does not exist.");
+
+        }
+
+        return $this->routes[$routeName];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function handle(RequestInterface $request): ?Route
+    {
+        $route = $this->dispatcher->handle($request->getMethod(), $request->getUri()->getPath());
 
         /** @var Route $route */
         if ($route !== null)
         {
             $callable = $this->callableResolver->resolve($route->getRawCallable());
-            $action->set($route, $callable, $arguments);
+            $route->setCallable($callable);
+            return $route;
         }
 
-        return $action;
+        return null;
     }
 
     /**
@@ -99,38 +119,8 @@ class Router implements RouterInterface, RouteCollectionInterface
      */
     public function urlFor(string $routeName, array $arguments = [], array $queryParams = []): string
     {
-        if (!isset($this->routes[$routeName]))
-        {
-            throw new RuntimeException("Route \"{$routeName}\" does not exist.");
-        }
-
-        $route = $this->routes[$routeName];
-        $arguments = array_merge($route->getDefaults(), $arguments);
-        $routeArguments = $route->getArguments();
-        $url = $route->getPath();
-
-        foreach ($routeArguments as $name => $routeArgument)
-        {
-            if (!array_key_exists($name, $arguments))
-            {
-                throw new RuntimeException("Argument \"{$name}\" of route \"{$route->getName()}\" is missing.");
-            }
-
-            if (!$routeArgument->isValid($arguments[$name]))
-            {
-                throw new RuntimeException("Given value \"{$arguments[$name]}\" for argument \"{$name}\" of route \"{$route->getName()}\" is invalid.");
-            }
-
-            $url = str_replace('{'.$name.'}', $arguments[$name], $url);
-        }
-
-        /* TODO segments in path
-        if (empty($segments)) {
-            throw new InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
-        }
-        $url = implode('', $segments);
-        */
-
+        $route = $this->getRouteByName($routeName);
+        $url = $this->routeParser->urlFor($route, $arguments);
         $url = $this->basePath.$url;
 
         if (count($queryParams))

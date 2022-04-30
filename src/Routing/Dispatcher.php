@@ -6,33 +6,37 @@ class Dispatcher
     /**
      * @var Route[][]
      */
-    private array $staticRoutes = [];
+    private array $routes = [];
 
     /**
-     * @var Route[][]
+     * @var RouteSegment[][]
      */
-    private array $dynamicRoutes = [];
+    private array $segments = [];
 
     /**
      * @param Route $route
      */
     public function addRoute(Route $route): void
     {
-        if ($route->hasArguments())
+        foreach ($route->getSegments() as $segment)
         {
-            foreach ($route->getMethods() as $method)
+            if ($segment->hasArguments())
             {
-                $pattern = str_replace('/', '\/', $route->getPattern());
-                $pattern = sprintf('/^%s$/', $pattern);
-                $this->dynamicRoutes[$method][$pattern] = $route;
+                foreach ($route->getMethods() as $method)
+                {
+                    $pattern = str_replace('/', '\/', $segment->getFullPattern());
+                    $pattern = sprintf('/^%s$/', $pattern);
+                    // TODO jeśli pattern istnieje to wywalić wyjątek
+                    $this->segments[$method][$pattern] = $segment;
+                }
             }
-        }
-        else
-        {
-            foreach ($route->getMethods() as $method)
+            else
             {
-
-                $this->staticRoutes[$method][$route->getPattern()] = $route;
+                foreach ($route->getMethods() as $method)
+                {
+                    // TODO jeśli pattern istnieje to wywalić wyjątek
+                    $this->routes[$method][$segment->getFullPattern()] = $route;
+                }
             }
         }
     }
@@ -40,50 +44,42 @@ class Dispatcher
     /**
      * @param string $method
      * @param string $uri
-     * @return array
+     * @return Route|null
      */
-    public function handle(string $method, string $uri): array
+    public function handle(string $method, string $uri): ?Route
     {
-        if (isset($this->staticRoutes[$method][$uri]))
+        if (isset($this->routes[$method][$uri]))
         {
-            return [$this->staticRoutes[$method][$uri], []];
+            return $this->routes[$method][$uri];
         }
 
-        return $this->dispatchDynamicRoute($method, $uri);
-    }
-
-    /**
-     * @param string $uri
-     * @return array
-     */
-    public function getAllowedMethods(string $uri): array
-    {
-        // TODO
-        return [];
+        return $this->getMatchedRoute($method, $uri);
     }
 
     /**
      * @param string $method
      * @param string $uri
-     * @return array [Route|null, array]
+     * @return Route|null
      */
-    private function dispatchDynamicRoute(string $method, string $uri): array
+    private function getMatchedRoute(string $method, string $uri): ?Route
     {
-        foreach ($this->dynamicRoutes[$method] as $pattern => $route)
+        foreach ($this->segments[$method] as $pattern => $segment)
         {
             if (preg_match($pattern, $uri, $matches))
             {
-                $arguments = [];
+                $arguments = $segment->getAllDefaults();
 
-                foreach ($route->getArguments() as $name => $argument)
+                foreach ($segment->getAllArguments() as $name => $argument)
                 {
                     $arguments[$name] = $argument->filter($matches[$name]);
                 }
 
-                return [$route, $arguments];
+                $route = $segment->getRoute();
+                $route->setArguments($arguments);
+                return $route;
             }
         }
 
-        return [null, []];
+        return null;
     }
 }

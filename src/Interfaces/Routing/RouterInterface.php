@@ -1,6 +1,9 @@
 <?php
 namespace Saq\Interfaces\Routing;
 
+use Saq\Interfaces\Http\RequestInterface;
+use Saq\Routing\Route;
+
 interface RouterInterface
 {
     /**
@@ -14,11 +17,10 @@ interface RouterInterface
     function getBasePath(): string;
 
     /**
-     * @param string $method
-     * @param string $uri
-     * @return ActionInterface
+     * @param RequestInterface $request
+     * @return Route|null
      */
-    function handle(string $method, string $uri): ActionInterface;
+    function handle(RequestInterface $request): ?Route;
 
     /**
      * @param string $routeName

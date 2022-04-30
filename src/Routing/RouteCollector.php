@@ -85,44 +85,44 @@ class RouteCollector
             $reflection = new ReflectionClass($className);
             $methods = $reflection->getMethods();
 
-            $groups = $reflection->getAttributes(RouteGroup::class);
+            $prefixes = $reflection->getAttributes(RoutePrefix::class);
 
-            if (count($groups) === 1)
+            if (count($prefixes) === 1)
             {
-                /** @var RouteGroup $group */
-                $group = $groups[0]->newInstance();
+                /** @var RoutePrefix $prefix */
+                $prefix = $prefixes[0]->newInstance();
             }
             else
             {
-                $group = null;
+                $prefix = null;
             }
 
             foreach ($methods as $method)
             {
-                $attributes = $method->getAttributes(Route::class);
+                $routeAttributes = $method->getAttributes(Route::class);
 
-                if (count($attributes) === 1)
+                if (count($routeAttributes) === 1)
                 {
                     /** @var Route $route */
-                    $route = $attributes[0]->newInstance();
+                    $route = $routeAttributes[0]->newInstance();
                     $route->setRawCallable([$className, $method->getName()]);
 
-                    if ($group !== null)
+                    if ($prefix !== null)
                     {
-                        $route->addGroup($group);
+                        $route->addPrefix($prefix);
+                    }
+
+                    $segmentAttributes = $method->getAttributes(RouteSegment::class);
+
+                    foreach ($segmentAttributes as $segmentAttribute)
+                    {
+                        /** @var RouteSegment $segment */
+                        $segment = $segmentAttribute->newInstance();
+                        $route->addSegment($segment);
                     }
 
                     $routeCollection->addRoute($route);
-
-                    $data[] = [
-                        $route->getName(),
-                        $route->getPath(),
-                        $route->getMethods(),
-                        $route->getRawArguments(),
-                        $route->getDefaults(),
-                        $route->getPattern(),
-                        $route->getRawCallable()
-                    ];
+                    $data[] = $this->getPreparedRouteData($route);
                 }
             }
         }
@@ -135,6 +135,32 @@ class RouteCollector
     }
 
     /**
+     * @param Route $route
+     * @return array
+     */
+    private function getPreparedRouteData(Route $route): array
+    {
+        $segments = [];
+
+        foreach ($route->getSegments() as $segment)
+        {
+            $segments[] = [
+                $segment->getPath(),
+                $segment->getRawArguments(),
+                $segment->getDefaults(),
+                $segment->getPattern()
+            ];
+        }
+
+        return [
+            $route->getName(),
+            $route->getMethods(),
+            $route->getRawCallable(),
+            $segments
+        ];
+    }
+
+    /**
      * @param RouteCollectionInterface $routeCollection
      */
     #[NoReturn]
@@ -143,13 +169,31 @@ class RouteCollector
         $json = file_get_contents($this->cacheFile);
         $data = json_decode($json, true);
 
-        foreach ($data as $item)
+        foreach ($data as $routeData)
         {
-            $route = new Route($item[0], $item[1], $item[2], $item[3], $item[4]);
-            $route->setPattern($item[5]);
-            $route->setRawCallable($item[6]);
+            $mainSegment = $this->createSegment(array_shift($routeData[3]));
+            $route = new Route($routeData[0], $mainSegment, $routeData[1]);
+            $route->setRawCallable($routeData[2]);
+
+            foreach ($routeData[3] as $segmentData)
+            {
+                $segment = $this->createSegment($segmentData);
+                $route->addSegment($segment);
+            }
+
             $routeCollection->addRoute($route);
         }
+    }
+
+    /**
+     * @param array $data
+     * @return RouteSegment
+     */
+    private function createSegment(array $data): RouteSegment
+    {
+        $segment = new RouteSegment($data[0], $data[1], $data[2]);
+        $segment->setPattern($data[3]);
+        return $segment;
     }
 
     /**

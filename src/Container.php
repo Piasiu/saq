@@ -42,10 +42,9 @@ class Container implements ContainerInterface
     private RequestInterface $request;
 
     /**
-     * Container constructor.
      * @param array $settings
+     * @throws ReflectionException
      */
-    #[Pure]
     public function __construct(array $settings = [])
     {
         $this->callableResolver = new CallableResolver($this);

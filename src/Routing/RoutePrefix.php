@@ -5,7 +5,7 @@ use Attribute;
 use JetBrains\PhpStorm\Pure;
 
 #[Attribute(\Attribute::TARGET_CLASS)]
-class RouteGroup
+class RoutePrefix
 {
     /**
      * @var string
