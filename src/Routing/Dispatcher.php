@@ -75,12 +75,14 @@ class Dispatcher
                     $arguments[$name] = $matches[$name];
                 }
 
+                $filteredArguments = [];
+
                 foreach ($route->getAllArguments() as $name => $argument)
                 {
-                    $arguments[$name] = $argument->filter($arguments[$name]);
+                    $filteredArguments[$name] = $argument->filter($arguments[$name]);
                 }
 
-                $route->setArguments($arguments);
+                $route->setArguments($filteredArguments);
                 return $route;
             }
         }

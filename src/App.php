@@ -114,7 +114,8 @@ class App
 
         // TODO Obsługa middelware-ów.
         $request->setAttribute('route', $route);
-        $result = call_user_func_array($route->getCallable(), [$request, $response, $route->getArguments()]);
+        $arguments = array_merge([$request, $response], $route->getArguments());
+        $result = call_user_func_array($route->getCallable(), $arguments);
 
         if ($result instanceof ResponseInterface)
         {
