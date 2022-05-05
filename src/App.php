@@ -2,6 +2,7 @@
 namespace Saq;
 
 use JetBrains\PhpStorm\Pure;
+use ReflectionException;
 use RuntimeException;
 use Saq\Exceptions\Http\HttpException;
 use Saq\Exceptions\Http\NotFoundException;
@@ -39,9 +40,14 @@ class App
     private array $httpHandlers = [];
 
     /**
-     * @param ContainerInterface|array $container
+     * @var callable[]
      */
-    #[Pure]
+    private array $middlewareList = [];
+
+    /**
+     * @param ContainerInterface|array $container
+     * @throws ReflectionException
+     */
     public function __construct(ContainerInterface|array $container = [])
     {
         $this->container = is_array($container) ? new Container($container) : $container;
@@ -53,6 +59,14 @@ class App
     public function getContainer(): ContainerInterface
     {
         return $this->container;
+    }
+
+    /**
+     * @param callable $middleware
+     */
+    public function addMiddleware(callable $middleware): void
+    {
+        $this->middlewareList[] = $middleware;
     }
 
     /**
@@ -112,17 +126,22 @@ class App
             throw new NotFoundException();
         }
 
-        // TODO Obsługa middelware-ów.
         $request->setAttribute('route', $route);
-        $arguments = array_merge([$request, $response], $route->getArguments());
-        $result = call_user_func_array($route->getCallable(), $arguments);
 
-        if ($result instanceof ResponseInterface)
+        $last = static function (RequestInterface $request, ResponseInterface $response) use ($route): ResponseInterface {
+            $arguments = array_merge([$request, $response], $route->getArguments());
+            return call_user_func_array($route->getCallable(), $arguments);
+        };
+
+        foreach ($this->middlewareList as $middleware)
         {
-            $response = $result;
+            $next = $last;
+            $last = static function (RequestInterface $request, ResponseInterface $response) use ($middleware, $next) {
+                return $middleware($request, $response, $next);
+            };
         }
 
-        return $response;
+        return $last($request, $response);
     }
 
     /**
