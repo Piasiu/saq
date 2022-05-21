@@ -85,6 +85,7 @@ class RouteCollector
             $reflection = new ReflectionClass($className);
             $methods = $reflection->getMethods();
 
+            /* Route prefix */
             $prefixes = $reflection->getAttributes(RoutePrefix::class);
 
             if (count($prefixes) === 1)
@@ -97,8 +98,18 @@ class RouteCollector
                 $prefix = null;
             }
 
+            /* Class middleware */
+            $classMiddleware = [];
+            $middlewareAttrs = $reflection->getAttributes(Middleware::class);
+
+            foreach ($middlewareAttrs as $middlewareAttr)
+            {
+                $classMiddleware[] = $middlewareAttr->newInstance();
+            }
+
             foreach ($methods as $method)
             {
+                /* Route */
                 $routeAttributes = $method->getAttributes(Route::class);
 
                 if (count($routeAttributes) === 1)
@@ -107,11 +118,13 @@ class RouteCollector
                     $route = $routeAttributes[0]->newInstance();
                     $route->setRawCallable([$className, $method->getName()]);
 
+                    /* Route prefix */
                     if ($prefix !== null)
                     {
                         $route->addPrefix($prefix);
                     }
 
+                    /* Route segments */
                     $segmentAttributes = $method->getAttributes(RouteSegment::class);
 
                     foreach ($segmentAttributes as $segmentAttribute)
@@ -119,6 +132,22 @@ class RouteCollector
                         /** @var RouteSegment $segment */
                         $segment = $segmentAttribute->newInstance();
                         $route->addSegment($segment);
+                    }
+
+                    /* Set class middleware */
+                    foreach ($classMiddleware as $middleware)
+                    {
+                        $route->addMiddleware($middleware);
+                    }
+
+                    /* Set method middleware */
+                    $middlewareAttrs = $method->getAttributes(Middleware::class);
+
+                    foreach ($middlewareAttrs as $middlewareAttr)
+                    {
+                        /** @var Middleware $middleware */
+                        $middleware = $middlewareAttr->newInstance();
+                        $route->addMiddleware($middleware);
                     }
 
                     $routeCollection->addRoute($route);
@@ -152,11 +181,19 @@ class RouteCollector
             ];
         }
 
+        $middlewareItems = [];
+
+        foreach ($route->getMiddlewareList() as $middleware)
+        {
+            $middlewareItems[] = $middleware->getClass();
+        }
+
         return [
             $route->getName(),
             $route->getMethods(),
             $route->getRawCallable(),
-            $segments
+            $segments,
+            $middlewareItems
         ];
     }
 
@@ -179,6 +216,12 @@ class RouteCollector
             {
                 $segment = $this->createSegment($segmentData);
                 $route->addSegment($segment);
+            }
+
+            foreach ($routeData[4] as $middlewareClass)
+            {
+                $middleware = new Middleware($middlewareClass);
+                $route->addMiddleware($middleware);
             }
 
             $routeCollection->addRoute($route);

@@ -108,6 +108,13 @@ class Router implements RouterInterface, RouteCollectionInterface
         {
             $callable = $this->callableResolver->resolve($route->getRawCallable());
             $route->setCallable($callable);
+
+            foreach ($route->getMiddlewareList() as $middleware)
+            {
+                $callable = $this->callableResolver->resolve($middleware->getRawCallable());
+                $route->addCallableMiddleware($callable);
+            }
+
             return $route;
         }
 

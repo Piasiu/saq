@@ -48,6 +48,16 @@ class Route
     private array $arguments = [];
 
     /**
+     * @var Middleware[]
+     */
+    private array $middlewareList = [];
+
+    /**
+     * @var callable[]
+     */
+    private array $callableMiddlewareList = [];
+
+    /**
      * @param string $name
      * @param string|RouteSegment $path
      * @param array|string[] $methods
@@ -187,5 +197,37 @@ class Route
     public function getArguments(): array
     {
         return $this->arguments;
+    }
+
+    /**
+     * @param Middleware $middleware
+     */
+    public function addMiddleware(Middleware $middleware): void
+    {
+        $this->middlewareList[] = $middleware;
+    }
+
+    /**
+     * @return Middleware[]
+     */
+    public function getMiddlewareList(): array
+    {
+        return $this->middlewareList;
+    }
+
+    /**
+     * @param callable $callableMiddleware
+     */
+    public function addCallableMiddleware(callable $callableMiddleware): void
+    {
+        $this->callableMiddlewareList[] = $callableMiddleware;
+    }
+
+    /**
+     * @return callable[]
+     */
+    public function getCallableMiddlewareList(): array
+    {
+        return $this->callableMiddlewareList;
     }
 }

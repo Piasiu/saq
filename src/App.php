@@ -127,13 +127,14 @@ class App
         }
 
         $request->setAttribute('route', $route);
+        $middlewareList = array_merge($this->middlewareList, $route->getCallableMiddlewareList());
 
         $last = static function (RequestInterface $request, ResponseInterface $response) use ($route): ResponseInterface {
             $arguments = array_merge([$request, $response], $route->getArguments());
             return call_user_func_array($route->getCallable(), $arguments);
         };
 
-        foreach ($this->middlewareList as $middleware)
+        foreach ($middlewareList as $middleware)
         {
             $next = $last;
             $last = static function (RequestInterface $request, ResponseInterface $response) use ($middleware, $next) {

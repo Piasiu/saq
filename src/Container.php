@@ -208,7 +208,7 @@ class Container implements ContainerInterface
      */
     public function getIterator(): ArrayIterator
     {
-        return new ArrayIterator();
+        return new ArrayIterator($this->services);
     }
 
     /**
