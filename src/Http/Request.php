@@ -19,11 +19,6 @@ class Request implements RequestInterface
     private UriInterface $uri;
 
     /**
-     * @var array
-     */
-    private array $attributes;
-
-    /**
      * @var RequestBodyInterface
      */
     private RequestBodyInterface $body;
@@ -37,6 +32,16 @@ class Request implements RequestInterface
      * @var string|null
      */
     private ?string $remoteHost = null;
+
+    /**
+     * @var array
+     */
+    private array $params = [];
+
+    /**
+     * @var array
+     */
+    private array $attributes;
 
     /**
      * @var string|null
@@ -59,6 +64,8 @@ class Request implements RequestInterface
         {
             $this->referer = $_SERVER['HTTP_REFERER'];
         }
+
+        $this->params = $_REQUEST;
     }
 
     /**
@@ -107,6 +114,33 @@ class Request implements RequestInterface
     public function getReferer(?string $default = null): ?string
     {
         return $this->referer !== null ? $this->referer : $default;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    #[Pure]
+    public function hasParam(string $name): bool
+    {
+        return array_key_exists($name, $this->params);
+    }
+
+    /**
+     * @return mixed
+     */
+    #[Pure]
+    public function getParam(string $name): mixed
+    {
+        return $this->hasParam($name) ?  $this->params[$name] : null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getParams(): array
+    {
+        return $this->params;
     }
 
     /**
