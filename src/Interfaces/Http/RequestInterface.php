@@ -9,6 +9,11 @@ interface RequestInterface
     function getMethod(): string;
 
     /**
+     * @return bool
+     */
+    function isPost(): bool;
+
+    /**
      * @return UriInterface
      */
     function getUri(): UriInterface;
@@ -27,7 +32,18 @@ interface RequestInterface
      * @param string|null $default
      * @return string|null
      */
-    function getRemoteHost(?string $default = null): ?string;
+    function getRemoteHost(?string $default = null): ?string;public function hasParam(string $name): bool;
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+     function getParam(string $name): mixed;
+
+    /**
+     * @return array
+     */
+    function getParams(): array;
 
     /**
      * @param string|null $default

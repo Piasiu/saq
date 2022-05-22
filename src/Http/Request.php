@@ -77,7 +77,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * @return bool
+     * @inheritDoc
      */
     public function isPost(): bool
     {
@@ -125,8 +125,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * @param string $name
-     * @return bool
+     * @inheritDoc
      */
     #[Pure]
     public function hasParam(string $name): bool
@@ -135,8 +134,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * @param string $name
-     * @return mixed
+     * @inheritDoc
      */
     #[Pure]
     public function getParam(string $name): mixed
@@ -145,7 +143,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * @return array
+     * @inheritDoc
      */
     public function getParams(): array
     {
