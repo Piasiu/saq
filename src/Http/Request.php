@@ -50,7 +50,7 @@ class Request implements RequestInterface
 
     public function __construct()
     {
-        $this->method = $_SERVER['REQUEST_METHOD'];
+        $this->method = strtoupper($_SERVER['REQUEST_METHOD']);
         $this->setUri();
         $this->body = new RequestBody();
         $this->remoteIp = $_SERVER['REMOTE_ADDR'];
@@ -74,6 +74,14 @@ class Request implements RequestInterface
     public function getMethod(): string
     {
         return $this->method;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPost(): bool
+    {
+        return $this->method == 'POST';
     }
 
     /**
@@ -127,6 +135,7 @@ class Request implements RequestInterface
     }
 
     /**
+     * @param string $name
      * @return mixed
      */
     #[Pure]
