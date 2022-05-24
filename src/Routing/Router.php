@@ -143,22 +143,22 @@ class Router implements RouterInterface, RouteCollectionInterface
      */
     public function setOptions(array $options): void
     {
-        if (isset($options['basePath']))
+        if (isset($options['basePath']) && $options['basePath'] !== false)
         {
             $this->basePath = $options['basePath'];
         }
 
-        if (isset($options['controllersPath']))
+        if (isset($options['controllersPath']) && $options['controllersPath'] !== false)
         {
             $this->routeCollector->setPath($options['controllersPath']);
         }
 
-        if (isset($options['controllerNamePattern']))
+        if (isset($options['controllerNamePattern']) && $options['controllerNamePattern'] !== false)
         {
             $this->routeCollector->setPattern($options['controllerNamePattern']);
         }
 
-        if (isset($options['cache']))
+        if (isset($options['cache']) && $options['cache'] !== false)
         {
             $this->routeCollector->setCacheFile($options['cache']);
         }
