@@ -122,7 +122,6 @@ class Response implements ResponseInterface
     public function withBody(ResponseBodyInterface $body): self
     {
         $this->body = $body;
-        $this->withHeader('Content-Length', $this->body->getSize());
         return $this;
     }
 }

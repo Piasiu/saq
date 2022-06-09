@@ -10,6 +10,8 @@ class ResponseEmiter
      */
     public function emit(ResponseInterface $response): void
     {
+        $response->withHeader('Content-Length', $response->getBody()->getSize());
+        
         if (headers_sent() === false)
         {
             $this->emitStatusLine($response);
