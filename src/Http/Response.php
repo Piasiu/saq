@@ -128,8 +128,8 @@ class Response implements ResponseInterface
     /**
      * @inheritDoc
      */
-    public function withRedirect(string $url, int $status = 200): self
+    public function withRedirect(string $url): self
     {
-        $this->withHeader('Location', $url)->withStatusCode($status);
+        $this->withHeader('Location', $url)->withStatusCode(200);
     }
 }

@@ -49,8 +49,7 @@ interface ResponseInterface
 
     /**
      * @param string $url
-     * @param int $status
      * @return ResponseInterface
      */
-    function withRedirect(string $url, int $status): ResponseInterface;
+    function withRedirect(string $url): ResponseInterface;
 }
