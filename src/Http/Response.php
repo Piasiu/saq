@@ -124,4 +124,12 @@ class Response implements ResponseInterface
         $this->body = $body;
         return $this;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function withRedirect(string $url, int $status = 200): self
+    {
+        $this->withHeader('Location', $url)->withStatusCode($status);
+    }
 }
