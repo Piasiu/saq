@@ -1,12 +1,14 @@
 <?php
 namespace Saq\Utils;
 
-class InstantMessage
+use Stringable;
+
+class InstantMessage implements Stringable
 {
     /**
      * @var string
      */
-    private string $message;
+    private string $content;
 
     /**
      * @var array
@@ -14,28 +16,29 @@ class InstantMessage
     private array $attributes;
 
     /**
-     * @param string $message
+     * @param string $content
      * @param array $attributes
      */
-    public function __construct(string $message, array $attributes = [])
+    public function __construct(string $content, array $attributes = [])
     {
-        $this->message = $message;
+        $this->content = $content;
         $this->attributes = $attributes;
     }
 
     /**
-     * @return string
+     * @param string $name
+     * @return mixed
      */
-    public function getMessage(): string
+    public function __get(string $name): mixed
     {
-        return $this->message;
+        return array_key_exists($name, $this->attributes) ? $this->attributes[$name] : null;
     }
 
     /**
-     * @return array
+     * @inheritDoc
      */
-    public function getAttributes(): array
+    public function __toString(): string
     {
-        return $this->attributes;
+        return $this->content;
     }
 }
