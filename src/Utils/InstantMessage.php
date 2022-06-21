@@ -47,9 +47,10 @@ class InstantMessage implements Stringable, ArrayAccess
     /**
      * @inheritDoc
      */
+    #[Pure]
     public function offsetGet(mixed $offset): mixed
     {
-        return $this->offsetExists($offset) ? $this->attributes[$offset] ? null;
+        return $this->offsetExists($offset) ? $this->attributes[$offset] : null;
     }
 
     /**
