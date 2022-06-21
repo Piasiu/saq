@@ -11,6 +11,9 @@ class SessionManager implements ArrayAccess
      */
     private string $group;
 
+    /**
+     * @param string $group
+     */
     public function __construct(string $group)
     {
         $this->group = $group;

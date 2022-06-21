@@ -1,7 +1,7 @@
 <?php
 namespace Saq\Utils;
 
-class InstantMessages
+class InstantMessagesService
 {
     const SESSION_KEY = 'instant-messages';
 
@@ -10,7 +10,7 @@ class InstantMessages
      */
     protected array $messages = [];
 
-    public function __construct()
+    public function __invoke(): InstantMessagesService
     {
         if (array_key_exists(self::SESSION_KEY, $_SESSION) && is_array($_SESSION[self::SESSION_KEY]))
         {
@@ -18,6 +18,7 @@ class InstantMessages
         }
 
         $_SESSION[self::SESSION_KEY] = [];
+        return $this;
     }
 
     /**
