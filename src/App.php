@@ -54,6 +54,16 @@ class App
     }
 
     /**
+     * @param int $maxLifeTime
+     */
+    public function runSession(int $maxLifeTime = 86400): void
+    {
+        ini_set('session.gc_maxlifetime', $maxLifeTime);
+        session_set_cookie_params($maxLifeTime);
+        session_start();
+    }
+
+    /**
      * @return ContainerInterface
      */
     public function getContainer(): ContainerInterface
