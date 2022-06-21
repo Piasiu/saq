@@ -1,9 +1,11 @@
 <?php
 namespace Saq\Utils;
 
+use ArrayAccess;
+use JetBrains\PhpStorm\Pure;
 use Stringable;
 
-class InstantMessage implements Stringable
+class InstantMessage implements Stringable, ArrayAccess
 {
     /**
      * @var string
@@ -26,19 +28,43 @@ class InstantMessage implements Stringable
     }
 
     /**
-     * @param string $name
-     * @return mixed
-     */
-    public function __get(string $name): mixed
-    {
-        return array_key_exists($name, $this->attributes) ? $this->attributes[$name] : null;
-    }
-
-    /**
      * @inheritDoc
      */
     public function __toString(): string
     {
         return $this->content;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Pure]
+    public function offsetExists(mixed $offset): bool
+    {
+        return array_key_exists($offset, $this->attributes);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->offsetExists($offset) ? $this->attributes[$offset] ? null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        $this->attributes[$offset] = $value;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function offsetUnset(mixed $offset): void
+    {
+        unset($this->attributes[$offset]);
     }
 }
