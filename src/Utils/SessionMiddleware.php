@@ -15,7 +15,7 @@ class SessionMiddleware
      * SessionMiddleware constructor.
      * @param int $maxLiveTime
      */
-    public function __construct(int $maxLiveTime = 86400)
+    public function __construct(int $maxLiveTime)
     {
         $this->maxLiveTime = $maxLiveTime;
     }
