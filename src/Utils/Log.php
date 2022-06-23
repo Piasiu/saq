@@ -25,7 +25,7 @@ class Log
      */
     public function __construct(string $path, string $defaultFileName = 'app.log', string $dateFormat = 'Y-m-d H:i:s')
     {
-        $this->path = realpath($path);
+        $this->path = rtrim($path, DIRECTORY_SEPARATOR);
         $this->defaultFileName = $defaultFileName;
         $this->dateFormat = $dateFormat;
 
@@ -43,7 +43,7 @@ class Log
     public function write(string $content, string $tag = '', ?string $fileName = null): void
     {
         $fileName = $fileName ?? $this->defaultFileName;
-        $content = date($this->dateFormat).' '.$tag."\r\n".$content."\r\n";
+        $content = date($this->dateFormat).' '.$tag.' '.$content."\r\n";
         file_put_contents($this->path.DIRECTORY_SEPARATOR.$fileName, $content, FILE_APPEND|LOCK_EX);
     }
 
