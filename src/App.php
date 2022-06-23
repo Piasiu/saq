@@ -1,26 +1,19 @@
 <?php
 namespace Saq;
 
-use JetBrains\PhpStorm\Pure;
 use ReflectionException;
 use RuntimeException;
 use Saq\Exceptions\Http\HttpException;
 use Saq\Exceptions\Http\NotFoundException;
 use Saq\Handlers\ErrorHandler;
 use Saq\Handlers\HttpHandler;
-use Saq\Handlers\NotFoundHandler;
-use Saq\Http\Request;
 use Saq\Http\Response;
 use Saq\Http\ResponseEmiter;
 use Saq\Interfaces\ContainerInterface;
 use Saq\Interfaces\Handlers\ErrorHandlerInterface;
 use Saq\Interfaces\Handlers\HttpHandlerInterface;
-use Saq\Interfaces\Handlers\NotFoundHandlerInterface;
 use Saq\Interfaces\Http\RequestInterface;
 use Saq\Interfaces\Http\ResponseInterface;
-use Saq\Interfaces\Routing\RouterInterface;
-use Saq\Routing\Router;
-use Saq\Utils\DotEnv;
 use Throwable;
 
 class App
