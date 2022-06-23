@@ -79,7 +79,8 @@ class Logger
 
         foreach ($traces as $i => $item)
         {
-            $content .= "\r\n#{($length - $i)}";
+            $no = $length - $i;
+            $content .= "\r\n#{$no}";
 
             if (isset($item['file']) && isset($item['line']))
             {
