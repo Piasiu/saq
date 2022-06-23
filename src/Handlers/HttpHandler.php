@@ -44,7 +44,7 @@ class HttpHandler implements HttpHandlerInterface
      */
     public function handle(RequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $content = "<!DOCTYPE html><html lang=\"en\"><head></head><meta charset=\"UTF-8\"/></head><body style=\"background-color: #1b1b1b; color: #f5d67b;\"><h1 style=\"color: #fc5433;\">SAQ Error</h1>";
+        $content = "<!DOCTYPE html><html lang=\"en\"><head></head><meta charset=\"UTF-8\"/></head><body style=\"background-color: #1b1b1b; text-align: center;\">";
         $content .= "<h1 style=\"color: #fc5433;\">{$this->httpStatusCode}</h1>";
         $content .= "<p style=\"font-size: 1.4rem; color: white;\">{$this->description}</p>";
         $content .= '</body></html>';
