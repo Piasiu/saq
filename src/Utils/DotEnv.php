@@ -25,16 +25,42 @@ class DotEnv
 
     public function load(): void
     {
-        $data = parse_ini_file($this->filePath);
+        $fn = fopen($this->filePath, 'r');
 
-        if ($data === false)
+        while (!feof($fn))
         {
-            throw new RuntimeException(sprintf('File "%s" is invalid.', $this->filePath));
+            $line = fgets($fn, 20);
+            $env = $this->parseLine($line);
+
+            if ($env !== null)
+            {
+                putenv($env);
+            }
         }
 
-        foreach ($data as $name => $value)
+        fclose($fn);
+    }
+
+    /**
+     * @param string $line
+     * @return string|null
+     */
+    private function parseLine(string $line): ?string
+    {
+        $line = trim($line);
+
+        if (strlen($line) > 0 && $line[0] !== '#')
         {
-            putenv("{$name}={$value}");
+            $parts = explode('=', $line, 2);
+
+            if (count($parts) === 2)
+            {
+                $name = $parts[0];
+                $value = trim($parts[1], '"');
+                return "$name=$value";
+            }
         }
+
+        return null;
     }
 }
