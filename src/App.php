@@ -20,6 +20,7 @@ use Saq\Interfaces\Http\RequestInterface;
 use Saq\Interfaces\Http\ResponseInterface;
 use Saq\Interfaces\Routing\RouterInterface;
 use Saq\Routing\Router;
+use Saq\Utils\DotEnv;
 use Throwable;
 
 class App
@@ -51,6 +52,7 @@ class App
     public function __construct(ContainerInterface|array $container = [])
     {
         $this->container = is_array($container) ? new Container($container) : $container;
+        $this->initEnv();
     }
 
     /**
@@ -208,5 +210,30 @@ class App
         }
 
         return $this->httpHandlers[$httpStatusCode];
+    }
+
+    private function initEnv(): void
+    {
+        $path = $this->container->getSettings()->get('envFilePath');
+
+        if (!empty($path))
+        {
+            if (!file_exists($path))
+            {
+                throw new RuntimeException(sprintf('File "%s" does not exist.', $path));
+            }
+
+            $data = parse_ini_file($path);
+
+            if ($data === false)
+            {
+                throw new RuntimeException(sprintf('File "%s" is invalid.', $path));
+            }
+
+            foreach ($data as $name => $value)
+            {
+                putenv("{$name}={$value}");
+            }
+        }
     }
 }
