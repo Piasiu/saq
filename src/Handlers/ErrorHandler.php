@@ -1,6 +1,7 @@
 <?php
 namespace Saq\Handlers;
 
+use Saq\Http\ResponseBody;
 use Saq\Interfaces\Handlers\ErrorHandlerInterface;
 use Saq\Interfaces\Http\RequestInterface;
 use Saq\Interfaces\Http\ResponseInterface;
@@ -26,38 +27,94 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     public function handle(RequestInterface $request, ResponseInterface $response, Throwable $throwable): ResponseInterface
     {
-        if ($this->displayDetails)
+        $traces = $throwable->getTrace();
+        $traces[0]['file'] = $throwable->getFile();
+        $traces[0]['line'] = $throwable->getLine();
+        $length = count($traces);
+
+        $content = "<!DOCTYPE html><html lang=\"en\"><head></head><meta charset=\"UTF-8\"/></head><body style=\"background-color: #1b1b1b; color: #f5d67b;\"><h1 style=\"color: #fc5433;\">SAQ Error</h1>";
+        $content .= "<p style=\"font-size: 1.4rem; color: white;\">{$throwable->getMessage()}</p>";
+
+        foreach ($traces as $i => $trace)
         {
-            $template = '<h3>Error</h3><p>%s in <strong>%s</strong> on line <strong>%s</strong></p>';
-            $data = sprintf($template, $throwable->getMessage(), $throwable->getFile(), $throwable->getLine());
-            $items = $throwable->getTrace();
-            $length = count($items);
+            $no = $length - $i;
+            $content .= "<p>#{$no} ";
+            $content .= $this->getFile($trace['file'], $trace['line']);
+            $content .= $this->getFunction($trace);
+            $content .= '</p>';
+        }
 
-            foreach ($items as $i => $item)
-            {
-                $data .= '<br>#'.($length - $i);
+        $content .= '</body></html>';
+        $body = new ResponseBody($content);
+        $response->withBody($body);
+        return $response;
+    }
 
-                if (isset($item['file']) && isset($item['line']))
-                {
-                    $data .= sprintf(' %s:%s', $item['file'], $item['line']);
-                }
+    /**
+     * @param string $file
+     * @param string $line
+     * @return string
+     */
+    private function getFile(string $file, string $line): string
+    {
+        return "<span style=\"color: #83ba52;\">{$file}</span>:<span style=\"color: #72e0d1;\">{$line}</span>";
+    }
 
-                if (isset($item['class']))
-                {
-                    $data .= sprintf(' %s::%s', $item['class'], $item['function']);
-                }
-                else
-                {
-                    $data .= ' '.$item['function'];
-                }
-            }
+    /**
+     * @param array $trace
+     * @return string
+     */
+    private function getFunction(array $trace): string
+    {
+
+        if (isset($trace['class']))
+        {
+            $content = " <span style=\"color: #fc9463\">{$trace['class']}</span>::<span style=\"color: silver\">{$trace['function']}</span>";
         }
         else
         {
-            $data = sprintf('<h3>Error</h3><p>%s</p>', $throwable->getMessage());
+            $content = " <span style=\"color: silver\">{$trace['function']}</span>";
         }
 
-        $response->getBody()->write($data);
-        return $response;
+        if (isset($trace['args']))
+        {
+            $args = [];
+
+            foreach ($trace['args'] as $arg)
+            {
+                if (is_string($arg))
+                {
+                    $args[] = $arg;
+                }
+                elseif (is_array($arg))
+                {
+                    $args[] = 'Array';
+                }
+                elseif (is_null($arg))
+                {
+                    $args[] = 'NULL';
+                }
+                elseif (is_bool($arg))
+                {
+                    $args[] = $arg ? 'true' : 'false';
+                }
+                elseif (is_object($arg))
+                {
+                    $args[] = get_class($arg);
+                }
+                elseif (is_resource($arg))
+                {
+                    $args[] = get_resource_type($arg);
+                }
+                else
+                {
+                    $args[] = $arg;
+                }
+            }
+
+            $content .= "(<span style=\"color: gray\">".join("</span>, <span style=\"color: gray\">" , $args).'</span>)';
+        }
+
+        return $content;
     }
 }
