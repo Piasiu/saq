@@ -73,7 +73,7 @@ class Logger
      */
     public function exception(Throwable $throwable, ?string $fileName = null): void
     {
-        $content = "{$throwable->getFile()}:{$throwable->getLine()} {$throwable->getMessage()}";
+        $content = $throwable->getMessage();
         $traces = $throwable->getTrace();
         $length = count($traces);
 
@@ -85,6 +85,10 @@ class Logger
             if (isset($item['file']) && isset($item['line']))
             {
                 $content .= " {$item['file']}:{$item['line']}";
+            }
+            elseif ($i === 0)
+            {
+                $content .= " {$throwable->getFile()}:{$throwable->getLine()}";
             }
 
             if (isset($item['class']))
