@@ -40,7 +40,7 @@ class Log
      * @param string $tag
      * @param string|null $fileName
      */
-    public function write(string $content, string $tag = '', ?string $fileName = null): void
+    public function write(string $content, string $tag, ?string $fileName = null): void
     {
         $fileName = $fileName ?? $this->defaultFileName;
         $content = date($this->dateFormat).' '.$tag.' '.$content."\r\n";
@@ -49,17 +49,19 @@ class Log
 
     /**
      * @param string $content
+     * @param string|null $fileName
      */
-    public function info(string $content): void
+    public function info(string $content, ?string $fileName = null): void
     {
-        $this->write($content, 'INFO');
+        $this->write($content, 'INFO', $fileName);
     }
 
     /**
      * @param string $content
+     * @param string|null $fileName
      */
-    public function error(string $content): void
+    public function error(string $content, ?string $fileName = null): void
     {
-        $this->write($content, 'ERROR');
+        $this->write($content, 'ERROR', $fileName);
     }
 }
