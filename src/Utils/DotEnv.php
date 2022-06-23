@@ -2,6 +2,7 @@
 namespace Saq\Utils;
 
 use RuntimeException;
+use SplFileObject;
 
 class DotEnv
 {
@@ -25,27 +26,26 @@ class DotEnv
 
     public function load(): void
     {
-        $fn = fopen($this->filePath, 'r');
+        $file = new SplFileObject($this->filePath);
 
-        while (!feof($fn))
+        while (!$file->eof())
         {
-            $line = fgets($fn, 20);
+            $line = $file->fgets();
             $env = $this->parseLine($line);
 
             if ($env !== null)
             {
-                putenv($env);
+                putenv(implode('=', $env));
+                $_ENV[$env[0]] = $env[1];
             }
         }
-
-        fclose($fn);
     }
 
     /**
      * @param string $line
-     * @return string|null
+     * @return array|null
      */
-    private function parseLine(string $line): ?string
+    private function parseLine(string $line): ?array
     {
         $line = trim($line);
 
@@ -55,9 +55,10 @@ class DotEnv
 
             if (count($parts) === 2)
             {
-                $name = $parts[0];
-                $value = trim($parts[1], '"');
-                return "$name=$value";
+                return [
+                    $parts[0],
+                    trim($parts[1], '"')
+                ];
             }
         }
 
