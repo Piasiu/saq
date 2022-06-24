@@ -38,9 +38,14 @@ class ErrorHandler implements ErrorHandlerInterface
         foreach ($traces as $i => $trace)
         {
             $no = $length - $i;
-            $content .= "<p>#{$no} ";
-            $content .= $this->getFile($trace['file'], $trace['line']);
+            $content .= "<p>#{$no}";
             $content .= $this->getFunction($trace);
+
+            if (isset($trace['file']) &&  isset($trace['line']))
+            {
+                $content .= $this->getFile($trace['file'], $trace['line']);
+            }
+
             $content .= '</p>';
         }
 
@@ -51,18 +56,13 @@ class ErrorHandler implements ErrorHandlerInterface
     }
 
     /**
-     * @param string|null $file
-     * @param string|null $line
+     * @param string $file
+     * @param string $line
      * @return string
      */
-    private function getFile(?string $file, ?string $line): string
+    private function getFile(string $file, string $line): string
     {
-        if ($file !== null && $line !== null)
-        {
-            return "<span style=\"color: #83ba52;\">{$file}</span>:<span style=\"color: #72e0d1;\">{$line}</span>";
-        }
-
-        return '';
+        return " in file <span style=\"color: #83ba52;\">{$file}</span>:<span style=\"color: #72e0d1;\">{$line}</span>";
     }
 
     /**
