@@ -59,7 +59,7 @@ class ErrorHandler implements ErrorHandlerInterface
     {
         if ($file !== null && $line !== null)
         {
-            return "<span style=\"color: #83ba52;\">{$file}</span>:<span style=\"color: #72e0d1;\">{$line}</span>"
+            return "<span style=\"color: #83ba52;\">{$file}</span>:<span style=\"color: #72e0d1;\">{$line}</span>";
         }
 
         return '';
