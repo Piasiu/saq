@@ -51,13 +51,18 @@ class ErrorHandler implements ErrorHandlerInterface
     }
 
     /**
-     * @param string $file
-     * @param string $line
+     * @param string|null $file
+     * @param string|null $line
      * @return string
      */
-    private function getFile(string $file, string $line): string
+    private function getFile(?string $file, ?string $line): string
     {
-        return "<span style=\"color: #83ba52;\">{$file}</span>:<span style=\"color: #72e0d1;\">{$line}</span>";
+        if ($file !== null && $line !== null)
+        {
+            return "<span style=\"color: #83ba52;\">{$file}</span>:<span style=\"color: #72e0d1;\">{$line}</span>"
+        }
+
+        return '';
     }
 
     /**
@@ -66,7 +71,6 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     private function getFunction(array $trace): string
     {
-
         if (isset($trace['class']))
         {
             $content = " <span style=\"color: #fc9463\">{$trace['class']}</span>::<span style=\"color: silver\">{$trace['function']}</span>";
