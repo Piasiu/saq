@@ -32,13 +32,17 @@ class ErrorHandler implements ErrorHandlerInterface
         $traces[0]['line'] = $throwable->getLine();
         $length = count($traces);
 
-        $content = "<!DOCTYPE html><html lang=\"en\"><head></head><meta charset=\"UTF-8\"/></head><body style=\"background-color: #1b1b1b; color: #f5d67b;\"><h1 style=\"color: #fc5433;\">SAQ Error</h1>";
+        $content = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/></head>';
+        $content .= '<style>tbody tr:nth-child(odd) {background-color: #212121;} tbody tr:hover {background-color: #383838;} td, th {padding-left: 0.5rem; padding-right: 0.5rem;} th {text-align: left;} .file {color: #83ba52;} .line {color: #72e0d1; text-align: right;} .class {color: #fc9463;} .function {color: silver;} .arg {color: gray;}</style>';
+        $content .= '<body style="background-color: #1b1b1b; color: #f5d67b;">';
+        $content .= '<h1 style="color: #fc5433;">SAQ Error</h1>';
         $content .= "<p style=\"font-size: 1.4rem; color: white;\">{$throwable->getMessage()}</p>";
+        $content .= '<table><thead><tr><th>#</th><th>Function</th><th>File</th><th>Line</th></tr></thead><tbody>';
 
         foreach ($traces as $i => $trace)
         {
             $no = $length - $i;
-            $content .= "<p>#{$no}";
+            $content .= "<tr><td>{$no}</td>";
             $content .= $this->getFunction($trace);
 
             if (isset($trace['file']) &&  isset($trace['line']))
@@ -46,10 +50,10 @@ class ErrorHandler implements ErrorHandlerInterface
                 $content .= $this->getFile($trace['file'], $trace['line']);
             }
 
-            $content .= '</p>';
+            $content .= '</tr>';
         }
 
-        $content .= '</body></html>';
+        $content .= '</tbody></table></body></html>';
         $body = new ResponseBody($content);
         $response->withBody($body);
         return $response;
@@ -62,7 +66,7 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     private function getFile(string $file, string $line): string
     {
-        return " in file <span style=\"color: #83ba52;\">{$file}</span>:<span style=\"color: #72e0d1;\">{$line}</span>";
+        return "<td class=\"file\">{$file}</td><td class=\"line\">{$line}</td>";
     }
 
     /**
@@ -73,11 +77,11 @@ class ErrorHandler implements ErrorHandlerInterface
     {
         if (isset($trace['class']))
         {
-            $content = " <span style=\"color: #fc9463\">{$trace['class']}</span>::<span style=\"color: silver\">{$trace['function']}</span>";
+            $content = "<span class=\"class\">{$trace['class']}</span>::<span class=\"function\">{$trace['function']}</span>";
         }
         else
         {
-            $content = " <span style=\"color: silver\">{$trace['function']}</span>";
+            $content = "<span class=\"function\">{$trace['function']}</span>";
         }
 
         if (isset($trace['args']))
@@ -116,9 +120,9 @@ class ErrorHandler implements ErrorHandlerInterface
                 }
             }
 
-            $content .= "(<span style=\"color: gray\">".join("</span>, <span style=\"color: gray\">" , $args).'</span>)';
+            $content .= "(<span class=\"arg\">".join("</span>, <span class=\"arg\">" , $args).'</span>)';
         }
 
-        return $content;
+        return "<td>{$content}</td>";
     }
 }
