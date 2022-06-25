@@ -50,7 +50,9 @@ class Dispatcher
     {
         if (isset($this->staticRoutes[$method][$uri]))
         {
-            return $this->staticRoutes[$method][$uri];
+            $route = $this->staticRoutes[$method][$uri];
+            $route->setArguments($route->getAllDefaults());
+            return $route;
         }
 
         return $this->getMatchedRoute($method, $uri);
@@ -88,5 +90,10 @@ class Dispatcher
         }
 
         return null;
+    }
+
+    private function prepareArguments(RouteSegment $segment): void
+    {
+
     }
 }
