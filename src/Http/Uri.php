@@ -146,7 +146,6 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
-    #[Pure]
     public function getAuthority(): string
     {
         $authority = $this->getUserInfo().$this->host;
