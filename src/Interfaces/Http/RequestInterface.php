@@ -32,18 +32,30 @@ interface RequestInterface
      * @param string|null $default
      * @return string|null
      */
-    function getRemoteHost(?string $default = null): ?string;public function hasParam(string $name): bool;
+    function getRemoteHost(?string $default = null): ?string;
 
     /**
      * @param string $name
+     * @return bool
+     */
+    function hasParam(string $name): bool;
+
+    /**
+     * @param string $name
+     * @param mixed $default
      * @return mixed
      */
-     function getParam(string $name): mixed;
+     function getParam(string $name, mixed $default = null): mixed;
 
     /**
      * @return array
      */
     function getParams(): array;
+
+    /**
+     * @return UploadedFileInterface[]
+     */
+    function getUploadedFiles(): array;
 
     /**
      * @param string|null $default

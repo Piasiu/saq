@@ -4,6 +4,7 @@ namespace Saq\Http;
 use JetBrains\PhpStorm\Pure;
 use Saq\Interfaces\Http\RequestBodyInterface;
 use Saq\Interfaces\Http\RequestInterface;
+use Saq\Interfaces\Http\UploadedFileInterface;
 use Saq\Interfaces\Http\UriInterface;
 
 class Request implements RequestInterface
@@ -39,6 +40,11 @@ class Request implements RequestInterface
     private array $params = [];
 
     /**
+     * @var UploadedFileInterface[]
+     */
+    private array $files = [];
+
+    /**
      * @var array
      */
     private array $attributes;
@@ -66,6 +72,7 @@ class Request implements RequestInterface
         }
 
         $this->params = $_REQUEST;
+        $this->prepareFiles();
     }
 
     /**
@@ -137,9 +144,9 @@ class Request implements RequestInterface
      * @inheritDoc
      */
     #[Pure]
-    public function getParam(string $name): mixed
+    public function getParam(string $name, mixed $default = null): mixed
     {
-        return $this->hasParam($name) ?  $this->params[$name] : null;
+        return $this->hasParam($name) ?  $this->params[$name] : $default;
     }
 
     /**
@@ -148,6 +155,14 @@ class Request implements RequestInterface
     public function getParams(): array
     {
         return $this->params;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUploadedFiles(): array
+    {
+        return $this->files;
     }
 
     /**
@@ -182,6 +197,32 @@ class Request implements RequestInterface
     public function getAttributes(): array
     {
         return $this->attributes;
+    }
+
+    private function prepareFiles(): void
+    {
+        foreach ($_FILES as $name => $file)
+        {
+            if (array_key_exists('error', $file))
+            {
+                if (is_array($file['error']) && is_array($file['tmp_name']) && is_array($file['name']) && is_array($file['size']))
+                {
+                    $this->files[$name] = [];
+
+                    foreach ($file['error'] as $i => $error)
+                    {
+                        if (is_int($error) && is_string($file['tmp_name'][$i]) && is_string($file['name'][$i]) && is_string($file['size'][$i]))
+                        {
+                            $this->files[$name][] = new UploadedFile($file['tmp_name'][$i], $file['name'][$i], $file['size'][$i], $error);
+                        }
+                    }
+                }
+                elseif (is_int($file['error']) && is_string($file['tmp_name']) && is_string($file['name']) && is_string($file['size']))
+                {
+                    $this->files[$name] = new UploadedFile($file['tmp_name'], $file['name'], $file['size'], $file[$i]['error']);
+                }
+            }
+        }
     }
 
     private function setUri(): void
