@@ -211,15 +211,15 @@ class Request implements RequestInterface
 
                     foreach ($file['error'] as $i => $error)
                     {
-                        if (is_int($error) && is_string($file['tmp_name'][$i]) && is_string($file['name'][$i]) && is_string($file['size'][$i]))
+                        if (is_int($error) && is_string($file['tmp_name'][$i]) && is_string($file['name'][$i]) && is_int($file['size'][$i]))
                         {
                             $this->files[$name][] = new UploadedFile($file['tmp_name'][$i], $file['name'][$i], $file['size'][$i], $error);
                         }
                     }
                 }
-                elseif (is_int($file['error']) && is_string($file['tmp_name']) && is_string($file['name']) && is_string($file['size']))
+                elseif (is_int($file['error']) && is_string($file['tmp_name']) && is_string($file['name']) && is_int($file['size']))
                 {
-                    $this->files[$name] = new UploadedFile($file['tmp_name'], $file['name'], $file['size'], $file[$i]['error']);
+                    $this->files[$name] = new UploadedFile($file['tmp_name'], $file['name'], $file['size'], $file['error']);
                 }
             }
         }
