@@ -54,6 +54,11 @@ class Request implements RequestInterface
      */
     private ?string $referer = null;
 
+    /**
+     * @var string[][]
+     */
+    private array $headers = [];
+
     public function __construct()
     {
         $this->method = strtoupper($_SERVER['REQUEST_METHOD']);
@@ -72,6 +77,7 @@ class Request implements RequestInterface
         }
 
         $this->params = $_REQUEST;
+        $this->prepareHeaders();
         $this->prepareFiles();
     }
 
@@ -129,6 +135,22 @@ class Request implements RequestInterface
     public function getReferer(?string $default = null): ?string
     {
         return $this->referer !== null ? $this->referer : $default;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getHeader(string $name): array
+    {
+        return array_key_exists($name, $this->headers) ? $this->headers[$name] : [];
     }
 
     /**
@@ -197,6 +219,26 @@ class Request implements RequestInterface
     public function getAttributes(): array
     {
         return $this->attributes;
+    }
+
+    private function prepareHeaders()
+    {
+        $this->headers = [];
+
+        foreach($_SERVER as $key => $value)
+        {
+            if (substr($key, 0, 5) === 'HTTP_')
+            {
+                $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
+                $this->headers[$header] = [];
+                $parts = explode(';', $value);
+
+                foreach ($parts as $part)
+                {
+                    $this->headers[$header][] = trim($part);
+                }
+            }
+        }
     }
 
     private function prepareFiles(): void

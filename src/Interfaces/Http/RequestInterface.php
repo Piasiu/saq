@@ -64,6 +64,17 @@ interface RequestInterface
     function getReferer(?string $default = null): ?string;
 
     /**
+     * @return string[][]
+     */
+    function getHeaders(): array;
+
+    /**
+     * @param string $name
+     * @return string[]
+     */
+    function getHeader(string $name): array;
+
+    /**
      * @param string $name
      * @param mixed $value
      */
