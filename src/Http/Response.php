@@ -131,5 +131,6 @@ class Response implements ResponseInterface
     public function withRedirect(string $url): self
     {
         $this->withHeader('Location', $url)->withStatusCode(200);
+        return $this;
     }
 }
