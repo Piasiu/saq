@@ -12,7 +12,7 @@ class NiceNameArg extends AbstractArgument implements RouteArgumentInterface
     #[Pure]
     public function __construct(array $options)
     {
-        $this->pattern = '[a-z][\-a-z\d]*[a-z\d]';
+        $this->pattern = '[a-z\d][\-a-z\d]*[a-z\d]';
     }
 
     /**

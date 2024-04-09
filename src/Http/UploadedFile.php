@@ -2,7 +2,6 @@
 namespace Saq\Http;
 
 use finfo;
-use JetBrains\PhpStorm\Pure;
 use Saq\Interfaces\Http\UploadedFileInterface;
 
 class UploadedFile implements UploadedFileInterface
