@@ -37,12 +37,12 @@ class RouteParser
 
                 if (!isset($value))
                 {
-                    throw new RuntimeException("Argument \"{$name}\" of route \"{$route->getName()}\" is missing.");
+                    throw new RuntimeException("Argument \"$name\" of route \"{$route->getName()}\" is missing.");
                 }
 
                 if (!$routeArgument->isValid($value))
                 {
-                    throw new RuntimeException("Given value \"{$value}\" for argument \"{$name}\" of route \"{$route->getName()}\" is invalid.");
+                    throw new RuntimeException("Given value \"$value\" for argument \"$name\" of route \"{$route->getName()}\" is invalid.");
                 }
 
                 $path = str_replace('{'.$name.'}', $value, $path);

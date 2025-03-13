@@ -9,6 +9,6 @@ class ClassNotContainMethodException extends RuntimeException
     #[Pure]
     public function __construct(string $class, string $method)
     {
-        parent::__construct("Class \"{$class}\" does not contain method \"{$method}\".");
+        parent::__construct("Class \"$class\" does not contain method \"$method\".");
     }
 }

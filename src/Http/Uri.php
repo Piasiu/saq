@@ -150,7 +150,7 @@ class Uri implements UriInterface
     {
         $authority = $this->getUserInfo().$this->host;
 
-        if ($this->port !== null && $this->port !== 80)
+        if ($this->port !== 80)
         {
             $authority .= ':'.$this->port;
         }
@@ -210,7 +210,7 @@ class Uri implements UriInterface
 
                 foreach ($this->queryParams as $name => $value)
                 {
-                    $parts[] = "{$name}={$value}";
+                    $parts[] = "$name=$value";
                 }
 
                 $this->query = '?'.implode('&', $parts);

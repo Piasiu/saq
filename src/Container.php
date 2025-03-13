@@ -176,7 +176,7 @@ class Container implements ContainerInterface
      * @inheritDoc
      * @throws ReflectionException
      */
-    public function offsetSet(mixed $offset, mixed $value)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         if (!is_string($offset))
         {
@@ -189,7 +189,7 @@ class Container implements ContainerInterface
     /**
      * @inheritDoc
      */
-    public function offsetUnset(mixed $offset)
+    public function offsetUnset(mixed $offset): void
     {
         unset($this->services[$offset]);
     }

@@ -80,7 +80,6 @@ class Response implements ResponseInterface
     /**
      * @inheritDoc
      */
-    #[Pure]
     public function getReasonPhrase(): string
     {
         if (array_key_exists($this->statusCode, self::$reasonPhrases))

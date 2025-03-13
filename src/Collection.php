@@ -103,7 +103,7 @@ class Collection implements CollectionInterface
     /**
      * @inheritDoc
      */
-    public function offsetSet(mixed $offset, mixed $value)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         $this->set($offset, $value);
     }
@@ -111,7 +111,7 @@ class Collection implements CollectionInterface
     /**
      * @inheritDoc
      */
-    public function offsetUnset(mixed $offset)
+    public function offsetUnset(mixed $offset): void
     {
         $this->remove($offset);
     }

@@ -4,7 +4,7 @@ namespace Saq\Routing;
 use Attribute;
 use JetBrains\PhpStorm\Pure;
 
-#[Attribute(\Attribute::TARGET_CLASS)]
+#[Attribute(Attribute::TARGET_CLASS)]
 class RoutePrefix
 {
     /**

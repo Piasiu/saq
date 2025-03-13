@@ -37,7 +37,7 @@ class Request implements RequestInterface
     /**
      * @var array
      */
-    private array $params = [];
+    private array $params;
 
     /**
      * @var UploadedFileInterface[]
@@ -221,7 +221,7 @@ class Request implements RequestInterface
         return $this->attributes;
     }
 
-    private function prepareHeaders()
+    private function prepareHeaders(): void
     {
         $this->headers = [];
 

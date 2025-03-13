@@ -182,9 +182,7 @@ class App
     {
         if ($this->errorHandler === null)
         {
-            $settings = $this->container->getSettings();
-            $displayDetails = $settings->get('displayErrorDetails', false);
-            $this->errorHandler = new ErrorHandler($displayDetails);
+            $this->errorHandler = new ErrorHandler();
         }
 
         return $this->errorHandler;

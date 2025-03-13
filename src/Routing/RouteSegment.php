@@ -197,7 +197,7 @@ class RouteSegment
 
             foreach ($arguments as $name => $argument)
             {
-                $pattern = "(?<{$name}>{$argument->getPattern()})";
+                $pattern = "(?<$name>{$argument->getPattern()})";
                 $this->pattern = str_replace('{'.$name.'}', $pattern, $this->pattern);
             }
         }

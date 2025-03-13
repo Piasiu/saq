@@ -10,19 +10,6 @@ use Throwable;
 class ErrorHandler implements ErrorHandlerInterface
 {
     /**
-     * @var bool
-     */
-    private bool $displayDetails;
-
-    /**
-     * @param bool $displayDetails
-     */
-    public function __construct(bool $displayDetails = false)
-    {
-        $this->displayDetails = $displayDetails;
-    }
-
-    /**
      * @inheritDoc
      */
     public function handle(RequestInterface $request, ResponseInterface $response, Throwable $throwable): ResponseInterface
@@ -41,15 +28,13 @@ class ErrorHandler implements ErrorHandlerInterface
                 $no = $length - $i;
                 $line = [
                     'no' => $no,
-                    'function' => $this->getFunction(),
+                    'function' => $this->getFunction($trace),
                     'file' => '',
                 ];
 
-                $content .= $this->getFunction($trace);
-
                 if (isset($trace['file']) && isset($trace['line']))
                 {
-                    $line['file'] = $this->getFile();
+                    $line['file'] = $this->getFile($trace['file'], $trace['line']);
                 }
 
                 $lines[] = $line;
@@ -73,7 +58,7 @@ class ErrorHandler implements ErrorHandlerInterface
             foreach ($traces as $i => $trace)
             {
                 $no = $length - $i;
-                $content .= "<tr><td>{$no}</td>";
+                $content .= "<tr><td>$no</td>";
                 $content .= $this->getFunctionAsHTML($trace);
 
                 if (isset($trace['file']) && isset($trace['line']))
@@ -99,7 +84,7 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     private function getFileAsHTML(string $file, string $line): string
     {
-        return "<td class=\"file\">{$file}</td><td class=\"line\">{$line}</td>";
+        return "<td class=\"file\">$file</td><td class=\"line\">$line</td>";
     }
 
     /**
@@ -122,7 +107,7 @@ class ErrorHandler implements ErrorHandlerInterface
             $content .= "(<span class=\"arg\">".join("</span>, <span class=\"arg\">" , $this->getFunctionArgs($trace['args'])).'</span>)';
         }
 
-        return "<td>{$content}</td>";
+        return "<td>$content</td>";
     }
 
     /**
@@ -132,7 +117,7 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     private function getFile(string $file, string $line): string
     {
-        return "{$file}:{$line}";
+        return "$file:$line";
     }
 
     /**

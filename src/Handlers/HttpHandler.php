@@ -55,8 +55,8 @@ class HttpHandler implements HttpHandlerInterface
         else
         {
             $content = "<!DOCTYPE html><html lang=\"en\"><head></head><meta charset=\"UTF-8\"/></head><body style=\"background-color: #1b1b1b; text-align: center;\">";
-            $content .= "<h1 style=\"color: #fc5433;\">SAQ {$this->httpStatusCode}</h1>";
-            $content .= "<p style=\"font-size: 1.4rem; color: white;\">{$this->description}</p>";
+            $content .= "<h1 style=\"color: #fc5433;\">SAQ $this->httpStatusCode</h1>";
+            $content .= "<p style=\"font-size: 1.4rem; color: white;\">$this->description</p>";
             $content .= '</body></html>';
         }
 

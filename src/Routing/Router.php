@@ -89,7 +89,7 @@ class Router implements RouterInterface, RouteCollectionInterface
     {
         if (!isset($this->routes[$routeName]))
         {
-            throw new RuntimeException("Route \"{$routeName}\" does not exist.");
+            throw new RuntimeException("Route \"$routeName\" does not exist.");
 
         }
 

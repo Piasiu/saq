@@ -47,7 +47,7 @@ class CallableResolver implements CallableResolverInterface
         }
         else
         {
-            throw new RuntimeException("\"{$toResolve}\" is not resolvable.");
+            throw new RuntimeException("\"$toResolve\" is not resolvable.");
         }
 
         return $this->create($class, $method);

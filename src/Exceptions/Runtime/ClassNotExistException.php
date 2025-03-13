@@ -9,6 +9,6 @@ class ClassNotExistException extends RuntimeException
     #[Pure]
     public function __construct(string $class)
     {
-        parent::__construct("Class \"{$class}\" does not exist.");
+        parent::__construct("Class \"$class\" does not exist.");
     }
 }
