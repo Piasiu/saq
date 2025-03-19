@@ -169,7 +169,7 @@ class Request implements RequestInterface
 
             if (array_key_exists('accept-language', $this->headers))
             {
-                foreach (explode(';', $this->headers['accept-language']) as $part)
+                foreach ($this->headers['accept-language'] as $part)
                 {
                     $values = explode(',', $part);
 
@@ -265,7 +265,7 @@ class Request implements RequestInterface
         {
             if (substr($key, 0, 5) === 'HTTP_')
             {
-                $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
+                $header = str_replace(' ', '-', str_replace('_', ' ', strtolower(substr($key, 5))));
                 $this->headers[$header] = [];
                 $parts = explode(';', $value);
 
