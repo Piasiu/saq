@@ -59,6 +59,11 @@ class Request implements RequestInterface
      */
     private array $headers = [];
 
+    /**
+     * @var string[]|null
+     */
+    private ?array $acceptLanguages = null;
+
     public function __construct()
     {
         $this->method = strtoupper($_SERVER['REQUEST_METHOD']);
@@ -151,6 +156,37 @@ class Request implements RequestInterface
     public function getHeader(string $name): array
     {
         return array_key_exists($name, $this->headers) ? $this->headers[$name] : [];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getAcceptLanguages(): array
+    {
+        if ($this->acceptLanguages === null)
+        {
+            $this->acceptLanguages = [];
+
+            if (array_key_exists('accept-language', $this->headers))
+            {
+                foreach (explode(';', $this->headers['accept-language']) as $part)
+                {
+                    $values = explode(',', $part);
+
+                    foreach ($values as $value)
+                    {
+                        $value = trim($value);
+
+                        if (!str_starts_with($value, 'q=') && !str_starts_with($value, 'v='))
+                        {
+                            $this->acceptLanguages[] = $value;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $this->acceptLanguages;
     }
 
     /**
