@@ -69,6 +69,11 @@ interface RequestInterface
     function getHeaders(): array;
 
     /**
+     * @return string[]
+     */
+    public function getAcceptLanguages(): array;
+
+    /**
      * @param string $name
      * @return string[]
      */
