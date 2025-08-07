@@ -55,45 +55,33 @@ class Dispatcher
             return $route;
         }
 
-        return $this->getMatchedRoute($method, $uri);
-    }
-
-    /**
-     * @param string $method
-     * @param string $uri
-     * @return Route|null
-     */
-    private function getMatchedRoute(string $method, string $uri): ?Route
-    {
-        foreach ($this->segments[$method] as $pattern => $segment)
+        if (isset($this->segments[$method]))
         {
-            if (preg_match($pattern, $uri, $matches))
+            foreach ($this->segments[$method] as $pattern => $segment)
             {
-                $route = $segment->getRoute();
-                $arguments = $route->getAllDefaults();
-
-                foreach ($segment->getAllArguments() as $name => $argument)
+                if (preg_match($pattern, $uri, $matches))
                 {
-                    $arguments[$name] = $matches[$name];
+                    $route = $segment->getRoute();
+                    $arguments = $route->getAllDefaults();
+
+                    foreach ($segment->getAllArguments() as $name => $argument)
+                    {
+                        $arguments[$name] = $matches[$name];
+                    }
+
+                    $filteredArguments = [];
+
+                    foreach ($route->getAllArguments() as $name => $argument)
+                    {
+                        $filteredArguments[$name] = $argument->filter($arguments[$name]);
+                    }
+
+                    $route->setArguments($filteredArguments);
+                    return $route;
                 }
-
-                $filteredArguments = [];
-
-                foreach ($route->getAllArguments() as $name => $argument)
-                {
-                    $filteredArguments[$name] = $argument->filter($arguments[$name]);
-                }
-
-                $route->setArguments($filteredArguments);
-                return $route;
             }
         }
 
         return null;
-    }
-
-    private function prepareArguments(RouteSegment $segment): void
-    {
-
     }
 }
