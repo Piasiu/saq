@@ -20,6 +20,18 @@ $ composer require piasiu/saq-db
 ```bash
 $ composer require piasiu/saq-form
 ```
+- [Saq-database](https://github.com/Piasiu/saq-database) for database support.
+```bash
+$ composer require piasiu/saq-database
+```
+- [Saq-twig-view](https://github.com/Piasiu/saq-twig-view) for Twig support.
+```bash
+$ composer require piasiu/saq-twig-view
+```
+- [Saq-trans](https://github.com/Piasiu/saq-trans) for translation support.
+```bash
+$ composer require piasiu/saq-trans
+```
 
 
 ## License

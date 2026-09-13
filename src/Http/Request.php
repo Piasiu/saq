@@ -306,9 +306,10 @@ class Request implements RequestInterface
     private function setUri(): void
     {
         [$path] = explode('?', $_SERVER['REQUEST_URI']);
+        $scheme = $_SERVER['REQUEST_SCHEME'] ?? ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http');
         $this->uri = new Uri($_SERVER['SERVER_NAME']);
         $this->uri
-            ->setScheme($_SERVER['REQUEST_SCHEME'])
+            ->setScheme($scheme)
             ->setPort($_SERVER['SERVER_PORT'])
             ->setPath($path)
             ->setQueryParams($_GET);
